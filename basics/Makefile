@@ -6,3 +6,6 @@ run: build
 
 build:
 	gcc -std=c2x main.c -o main
+
+hex:
+	hexdump -C txt/bin/output.bin
