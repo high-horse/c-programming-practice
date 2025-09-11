@@ -6,8 +6,37 @@
     write to stream
     fputc, fputs, and fpritf
 */
+
+/*
+    use fseek to manupulate pointer to the content of the file.
+    | Constant   | Meaning                                                             |
+    | ---------- | ------------------------------------------------------------------- |
+    | `SEEK_SET` | Sets the position relative to the **beginning** of the file.        |
+    | `SEEK_CUR` | Sets the position relative to the **current** position in the file. |
+    | `SEEK_END` | Sets the position relative to the **end** of the file.              |
+*/
 int main(void)
 {
+    char *file_name = "txt/test.txt";
+    char *mode = "w+";
+    FILE *fp;
+    fp = fopen(file_name, mode);
+    if (fp == NULL)
+    {
+        return 1;
+    }
+
+    fprintf(fp, "Hello World");
+    fseek(fp, -5, SEEK_END);
+    fprintf(fp, "za warudo");
+
+    int c;
+    while ((c = fgetc(fp)) != EOF)
+    {
+        printf("%c", c);
+    }
+    
+    fclose(fp);
 }
 
 // using fgetc
