@@ -1,0 +1,20 @@
+// Shrink to fit
+if (offset < bufsize - 1) { // If we're short of the end
+char *new_buf = realloc(buf, offset + 1); // +1 for NUL terminator
+56
+57
+58
+59
+// If successful, point buf to new_buf;
+// otherwise we'll just leave buf where it is
+if (new_buf != NULL)
+buf = new_buf;
+60
+61
+62
+63
+}
+64
+65
+// Add the NUL terminator
+buf[offset] = '\0';
