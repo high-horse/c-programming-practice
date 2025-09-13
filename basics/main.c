@@ -1,25 +1,33 @@
-#include<stdio.h>
+#include <stdio.h>
 #include<stdlib.h>
 
-int main(void) {
-    float *fp = calloc(20, sizeof(*fp));
-    for (int i = 0; i < 20; i++)
-    {
-        fp[i] = 1000.0 / i;
-    }
+int main(void)
+{
+    char *pi = "3.1415";
+    float f;
+    int i;
+    f = atof(pi);
+    i = atoi(pi);
+    printf("%f\t %d\n", f, i);
+}
 
-    float *fp_add = realloc(fp, sizeof(*fp) * 40);
-    if(fp_add == NULL) {
-        printf("Could not reallocate more mem\n"); return 1;
-    } 
 
-    // it copies and pointes to the same memory as fp.
-    fp = fp_add;
-    for (int i = 0; i < 40; i++)
-    {
-        printf("%d => %f\t", i, fp[i]);
-    }
-    printf("\n");
-    
-    free(fp);
+void les_1(void)
+{
+    int a = 10;
+    char b = 'B';
+    printf("%c\n", a + b);
+}
+
+void num_to_str(){
+    char s[10];
+    float f = 12.234;
+
+    sprintf(s, "%f", f);
+    // snprintf(s, 10, "%f", f); // same as above
+    printf("%s \n", s);
+}
+
+void str_to_num(void){
+
 }
