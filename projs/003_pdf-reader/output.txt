@@ -1,0 +1,53 @@
+Architecture Overview
+The Master Mediator Controller implements a sophisticated architecture that combines the
+Mediator pattern with master-slave database replication for optimal performance and reliability.
+The system automatically routes read operations to slave databases and write operations to
+master
+databases, with intelligent fallback mechanisms, comprehensive exception handling,
+role-based
+authorization, and advanced data filtering capabilities.
+Key Features
+Automatic Connection Routing: Read operations use slave connections, write operations use
+master connections
+Intelligent Fallback: Automatic failover from slave to master when slave is unavailable
+Query/Command Separation: Clear separation between read queries and write commands
+Permission-based Access Control: Built-in authorization checks with role-based
+permissionsComprehensive Exception Handling: Centralized error handling with detailed
+logging
+Dynamic Scope Filtering: Advanced data filtering with office-based access control
+Relationship Auto-Discovery: Automatic detection and loading of model relationships
+Caching: Intelligent caching of query handlers and model metadata
+Connection Health Monitoring: Real-time connection status checking
+Key Benefits
+Separation of Concerns: Clear division between read/write operations
+Connection Resilience: Automatic failover for read operations
+Consistent Authorization: Centralized permission checking
+Transaction Safety: Write operations automatically wrapped in transactions
+Maintainability: Handlers encapsulate business logic
+Scalability: Easy to add new operations without modifying controllers
+Key Workflow Components
+Controller Layer
+Receives HTTP requests and delegates to appropriate handlers. The controller layer acts as
+the
+entry point for all API requests and manages the initial request processing.
+Query/Command Objects
+Data transfer objects encapsulating operation parameters. These objects serve as containers
+for all
+the data needed to perform specific operations.
+Handlers
+Business logic processors for specific operations. Handlers contain the core business logic
+and are
+responsible for executing the actual operations.
+Mediator
+Central dispatcher that routes requests to appropriate handlers. The mediator pattern ensures
+loose coupling between controllers and handlers.
+Repository Layer
+Data access abstraction that provides a clean interface for database operations while handling
+connection management automatically.Database Connection Management
+Automatic master/slave routing with intelligent fallback mechanisms for high availability and
+performance optimization.
+Core Components
+1. MasterMediatorController
+The abstract base controller that provides CRUD operations with automatic database
+connection
+management.

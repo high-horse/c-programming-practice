@@ -28,12 +28,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fdd18eba-9ab3-4bc6-815a-05e6767448b4" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/010_types_conversion_main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
-    </list>
+    <list default="true" id="fdd18eba-9ab3-4bc6-815a-05e6767448b4" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -105,7 +100,7 @@
       <workItem from="1757867302733" duration="1034000" />
       <workItem from="1757868384415" duration="82000" />
       <workItem from="1757868474673" duration="175000" />
-      <workItem from="1757868658267" duration="4134000" />
+      <workItem from="1757868658267" duration="5065000" />
     </task>
     <servers />
   </component>
