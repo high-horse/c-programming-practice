@@ -1,51 +1,75 @@
-#include <poppler/glib/poppler.h>
-#include <glib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define BUFFER_SIZE 4096
+
+void extract_text_from_pdf_(const char *pdf);
+
+
+void extract_text_from_pdf(const char *filename) {
+    FILE *fp = fopen(filename, "rb");
+    if (!fp) {
+        perror("File open failed");
+        return;
+    }
+
+    char buffer[BUFFER_SIZE];
+    while (fgets(buffer, sizeof(buffer), fp)) {
+        char *start = buffer;
+
+        while ((start = strstr(start, "(")) != NULL) {
+            char *end = strchr(start + 1, ')');
+            if (end) {
+                *end = '\0'; // terminate the string
+                printf("%s\n", start + 1);
+                start = end + 1;
+            } else {
+                break;
+            }
+        }
+    }
+
+    fclose(fp);
+}
+
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <pdf-file>\n", argv[0]);
-        return 1;
+        return EXIT_FAILURE;
     }
 
-    GError *error = NULL;
-    gchar *uri = g_filename_to_uri(argv[1], NULL, &error);
-    if (!uri) {
-        fprintf(stderr, "Error converting filename: %s\n", error->message);
-        g_error_free(error);
-        return 1;
-    }
+    extract_text_from_pdf(argv[1]);
 
-    PopplerDocument *doc = poppler_document_new_from_file(uri, NULL, &error);
-    g_free(uri);
-
-    if (!doc) {
-        fprintf(stderr, "Error opening PDF: %s\n", error->message);
-        g_error_free(error);
-        return 1;
-    }
-
-    int n_pages = poppler_document_get_n_pages(doc);
-    FILE *out = fopen("output.txt", "w");
-    if (!out) {
-        perror("fopen");
-        g_object_unref(doc);
-        return 1;
-    }
-
-    for (int i = 0; i < n_pages; i++) {
-        PopplerPage *page = poppler_document_get_page(doc, i);
-        if (!page) continue;
-
-        gchar *text = poppler_page_get_text(page);
-        if (text) {
-            fprintf(out, "%s\n", text);
-            g_free(text);
-        }
-        g_object_unref(page);
-    }
-
-    fclose(out);
-    g_object_unref(doc);
-    return 0;
+    return EXIT_SUCCESS;
+    
 }
+
+void extract_text_from_pdf_(const char *pdf){
+    FILE *fp = fopen(fp, "r");
+    if(!fp) {
+        perror("Unable to open file");
+        return;
+    }
+
+    char buffer[ BUFFER_SIZE ];
+    while (fgets(buffer, sizeof(buffer), fp))
+    {
+        char *start = buffer;
+        while ((start = strstr(start, "(") != NULL))
+        {
+            char *end = strchr(start + 1, ")");
+            if (end) {
+                *end = '\0';
+                printf("%s\n", start+1);
+                start = end +1;
+            } else {
+                break;
+            }
+        }
+        
+    }
+    fclose(fp);
+}
+
