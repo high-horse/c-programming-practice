@@ -29,3 +29,5 @@ convert-p3:
 convert-p6:
 	convert original-images.jpeg -define ppm:format=binary image.ppm
 
+less:
+	less image.ppm
