@@ -1,0 +1,43 @@
+
+int main() {
+    SDL_Init(SDL_INIT_VIDEO);
+    const int width = 900;
+    const int height = 600;
+    const char *ptitle = "Image Viewer";
+
+    // SDL_Window *pwindow =  SDL_CreateWindow(ptitle, width, height, 0);
+
+    SDL_Window  *pwindow = SDL_CreateWindow(ptitle, SDL_WINDOWPOS_CENTERED,  SDL_WINDOWPOS_CENTERED, width, height, 0) ;
+    SDL_Renderer *prenderer =  SDL_CreateRenderer(pwindow, -1, 0);
+    if(!pwindow || !prenderer)
+    {
+        SDL_Log("Failed to create window or renderer");
+        return EXIT_FAILURE;
+    }
+
+    SDL_SetRenderDrawColor(prenderer, 255, 0, 255, 255);
+    
+    SDL_Rect blueRect = { 1, 1, 1, 1 };
+
+    for (int i = 0; i < width; i++)
+    {
+        for (int j = 0; j < height; i++)
+        {
+            blueRect = { i, j, 1, 1 };
+
+            SDL_RenderFillRect(prenderer, &blueRect);
+        }
+        
+    }
+    SDL_RenderPresent(prenderer);
+    
+
+    SDL_Event event;
+    while(SDL_WaitEvent(&event))
+        if(event.type == SDL_QUIT) break;
+
+    SDL_DestroyWindow(pwindow);
+    SDL_Quit();
+    
+    return EXIT_SUCCESS;
+}

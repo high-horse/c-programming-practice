@@ -11,10 +11,21 @@ SDL     := $(shell pkg-config --cflags --libs sdl2)
 all: build
 
 build:
-	$(CC) $(CSTD) $(WARN) $(DEBUG) $(SRC) -o $(OUT) $(SDL)
+	@$(CC) $(CSTD) $(WARN) $(DEBUG) $(SRC) -o $(OUT) $(SDL)
 
-run: build
-	./$(OUT)
+do: 
+	@make build && cat image.ppm | ./a.out 
+
+run: 
+	@./$(OUT)
 
 clean:
 	rm -f $(OUT)
+
+
+convert-p3:
+	convert images.jpeg -compress none image.ppm
+
+convert-p6:
+	convert original-images.jpeg -define ppm:format=binary image.ppm
+
