@@ -31,3 +31,6 @@ convert-p6:
 
 less:
 	less image.ppm
+
+xxd:
+	xxd image.ppm
