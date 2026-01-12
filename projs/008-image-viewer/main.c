@@ -9,22 +9,37 @@ int main()
     FILE *in = stdin;
     int width = 900;
     int height = 600;
-    
-    char *pthrowaway = calloc(1000, sizeof(char));
+    char ppmformat[3];
+    char line[1000];
+
     // Read first line (specifier p3 or p6)
-    fgets(pthrowaway, 1000, in);
-    free(pthrowaway);
+    fgets(line, sizeof(line), in);
+    sscanf(line, "%2s", ppmformat);
 
-    char *pdimensions = calloc(1000, sizeof(char));
+
+    char pdimensions[1000];
     // read 2nd line  (dimensions)
-    fgets(pdimensions, 1000, in);
-    sscanf(pdimensions, "%d %d", &width, &height);
-    free(pdimensions);
 
-    char *pthrowable = calloc(1000, sizeof(char));
-    // read 2nd line  (max color)
+    if( fgets(pdimensions, 1000, in) == NULL){
+        perror("error reading dimension\n");
+        return EXIT_FAILURE;
+    }
+
+    if(pdimensions[0] == '#') {
+        memset(pdimensions, 0, sizeof(pdimensions));
+        fgets(pdimensions, 1000, in);
+    }
+
+    // Must return 2 since 2 arguments are returned from sscanf.
+    if(sscanf(pdimensions, "%d %d", &width, &height) !=2 ) {
+        perror("Error reading dimensions\n");
+        return EXIT_FAILURE;
+    }
+  
+
+    char pthrowable[1000] ;
+    // read 3nd line  (max color)
     fgets(pthrowable, 1000, in);
-    free(pthrowable);
 
 
     SDL_Window *pwindow = SDL_CreateWindow("Image Viewer",  SDL_WINDOWPOS_CENTERED,  SDL_WINDOWPOS_CENTERED, width, height, 0);
@@ -35,14 +50,27 @@ int main()
     SDL_Rect pixel = (SDL_Rect) {x, y, 1, 1};
     Uint32 color =  0;
 
-    for (int i = 0; i < width; i++)
+   
+    for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
             Uint8 r, g, b;
-            r = (char) getchar();
-            g = (char) getchar();
-            b = (char) getchar();
+
+            if(ppmformat[1] == '6') 
+            {
+                r = (char) getchar();
+                g = (char) getchar();
+                b = (char) getchar();
+            } else {
+                int ir, ig, ib;
+                fscanf(in, "%d %d %d", &ir, &ig, &ib);
+                r = (Uint8)ir;
+                g = (Uint8)ig;
+                b = (Uint8)ib;
+
+            }
+
             color = SDL_MapRGB(psurface->format, r,  g,  b);
             pixel.x = i;
             pixel.y = j;
