@@ -5,9 +5,10 @@
 #include <linux/input.h>
 #include <sys/time.h>
 
-
-int main(int argc, char *argv[]) {
-    if(argc != 2) {
+int main(int argc, char *argv[])
+{
+    if (argc != 2)
+    {
         printf("USAAGE: %s <path-to-file>\n", argv[0]);
         return EXIT_FAILURE;
     }
@@ -15,34 +16,41 @@ int main(int argc, char *argv[]) {
     printf("intersepting %s \n", openingfile);
 
     int fd = open(openingfile, O_RDONLY, 0);
-    if(fd < 0) {
+    if (fd < 0)
+    {
         printf("ERROR OPENING FILE DISCRIPTOR");
         return EXIT_FAILURE;
     }
     printf("Successfulluy opened the file discriptorb %d\n", fd);
 
-    struct input_event captured_event ;
+    struct input_event captured_event;
     int reading = 1;
-    size_t red ;
-    while (reading) {
-     red = (fd, &captured_event, sizeof captured_event);
-      if (red == (ssize_t)-1) {
+    ssize_t red; // Use ssize_t for the read() return type
+
+    printf("Listening for events. Press Ctrl+C to exit.\n");
+
+    while (reading)
+    {
+        // CORRECT: Function call syntax
+        red = read(fd, &captured_event, sizeof captured_event);
+
+        if (red == (ssize_t)-1)
+        {
             perror("read error");
             break; // Exit the loop on error
         }
-     printf("read resp %zd, event type %u, code %u\n", red, captured_event.type, captured_event.code);
 
+        // Use %zd for ssize_t
+        printf("read resp %zd, event type %u, code %u\n",
+               red, captured_event.type, captured_event.code);
+               reading = 0;
     }
-    printf("read resp %zu\n", red);
-
-
     // int x ;
     // char c;
     // while( read(STDIN_FILENO, &c, 1) == 1 && c != 'q'){
     //     printf("read %c\n", c);
     // }
-    
-    
+
     close(fd);
     return EXIT_SUCCESS;
 }
