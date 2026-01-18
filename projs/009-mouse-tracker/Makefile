@@ -17,3 +17,18 @@ run:
 
 all:
 	@make build && make run
+
+less:
+	less -f eventfile 
+
+xxd: 	
+	xxd eventfile
+
+find:
+	find /usr/include -name "input-event-codes.h"
+
+eventcodes:
+	cat /usr/include/linux/input-event-codes.h
+
+resource :
+	https://www.kernel.org/doc/Documentation/input/input.txt

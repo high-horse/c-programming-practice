@@ -1,11 +1,133 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <fcntl.h>
 #include <linux/input.h>
 #include <sys/time.h>
 
+#define true 1
+#define false 0
+
+void get_code(struct input_event *p_event, char *code)
+{
+    switch (p_event->code)
+    {
+    case REL_X:
+        strcpy(code, "REL_X");
+        break;
+
+    case REL_Y:
+        strcpy(code, "REL_Y");
+        break;
+
+    case REL_Z:
+        strcpy(code, "REL_Z");
+        break;
+
+    case REL_RX:
+        strcpy(code, "REL_RX");
+        break;
+
+    case REL_RY:
+        strcpy(code, "REL_RY");
+        break;
+
+    case REL_RZ:
+        strcpy(code, "REL_RZ");
+        break;
+
+    case REL_HWHEEL:
+        strcpy(code, "REL_HWHEEL");
+        break;
+
+    case REL_DIAL:
+        strcpy(code, "REL_DIAL");
+        break;
+
+    case REL_WHEEL:
+        strcpy(code, "REL_WHEEL");
+        break;
+
+    case REL_MISC:
+        strcpy(code, "REL_MISC");
+        break;
+
+    default:
+        strcpy(code, "others");
+        break;
+    }
+}
+
+void get_event_type(struct input_event *p_event, char *type)
+{
+    switch (p_event->type)
+    {
+    case 0:
+        strcpy(type, "EV_SYN");
+        break;
+
+    case 1:
+        strcpy(type, "EV_KEY");
+        break;
+
+    case 2:
+        strcpy(type, "EV_REL");
+        break;
+
+    case 3:
+        strcpy(type, "EV_ABS");
+        break;
+
+    case 4:
+        strcpy(type, "EV_MSC");
+        break;
+
+    case 5:
+        strcpy(type, "EV_SW");
+        break;
+
+    default:
+        strcpy(type, "other");
+        break;
+    }
+}
+
 int main(int argc, char *argv[])
+{
+    if (argc != 2)
+    {
+        printf("Usage: %s, <FILE_NAME>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+    char *opening_file = argv[1];
+    printf("Device %s is being intersepted \n", opening_file);
+
+    int fd = open(opening_file, O_RDONLY);
+    if (fd == -1)
+    {
+        printf("Failed to open file discriptor.\n");
+        return EXIT_FAILURE;
+    }
+    printf("FIle Discriptor read is %d\n", fd);
+
+    struct input_event i_event;
+
+    while (true)
+    {
+        read(fd, &i_event, sizeof i_event);
+        struct timeval time = i_event.time;
+        char ev_type[20];
+        get_event_type(&i_event, ev_type);
+        char code[20];
+        get_code(&i_event, code);
+        printf("EVENT @t=%lds %ldus\n", time.tv_sec, time.tv_usec);
+        printf("Event type %s, code %s\n", ev_type, code);
+        printf("value  %d \n", i_event.value);
+    }
+}
+
+int main_old(int argc, char *argv[])
 {
     if (argc != 2)
     {
@@ -24,7 +146,7 @@ int main(int argc, char *argv[])
     printf("Successfulluy opened the file discriptorb %d\n", fd);
 
     struct input_event captured_event;
-    int reading = 1;
+    int reading = true;
     ssize_t red; // Use ssize_t for the read() return type
 
     printf("Listening for events. Press Ctrl+C to exit.\n");
@@ -77,7 +199,7 @@ int main(int argc, char *argv[])
         // Use %zd for ssize_t
         printf("read resp %zd, event type %u, code %u\n",
                red, captured_event.type, captured_event.code);
-        reading = 0;
+        reading = false;
     }
     // int x ;
     // char c;
