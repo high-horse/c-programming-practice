@@ -5,7 +5,6 @@
 
 int main() 
 {
-    printf("hello world \n");
     FILE *in = stdin;
     int width = 900;
     int height = 600;

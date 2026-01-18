@@ -13,7 +13,7 @@ build:
 	@$(CC) $(CSTD) $(WARN) $(DEBUG) $(SRC) -o $(OUT) 
 
 run:
-	@./bin/a.out
+	@./bin/a.out /dev/input/mouse1
 
 all:
 	@make build && make run
