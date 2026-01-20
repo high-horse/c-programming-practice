@@ -5,9 +5,48 @@
 #include <fcntl.h>
 #include <linux/input.h>
 #include <sys/time.h>
+#include <libevdev-1.0/libevdev/libevdev.h>
+#include <errno.h>
+
+#include "local_events.h"
 
 #define true 1
 #define false 0
+
+void get_event_type(struct input_event *p_event, char *type)
+{
+    switch (p_event->type)
+    {
+    case 0:
+        strcpy(type, "EV_SYN");
+        break;
+
+    case 1:
+        strcpy(type, "EV_KEY");
+        break;
+
+    case 2:
+        strcpy(type, "EV_REL");
+        break;
+
+    case 3:
+        strcpy(type, "EV_ABS");
+        break;
+
+    case 4:
+        strcpy(type, "EV_MSC");
+        break;
+
+    case 5:
+        strcpy(type, "EV_SW");
+        break;
+
+    default:
+        strcpy(type, "other");
+        break;
+    }
+}
+
 
 void get_code(struct input_event *p_event, char *code)
 {
@@ -53,45 +92,16 @@ void get_code(struct input_event *p_event, char *code)
         strcpy(code, "REL_MISC");
         break;
 
+
+    // Handling keyboard events.
+
+
     default:
         strcpy(code, "others");
         break;
     }
 }
 
-void get_event_type(struct input_event *p_event, char *type)
-{
-    switch (p_event->type)
-    {
-    case 0:
-        strcpy(type, "EV_SYN");
-        break;
-
-    case 1:
-        strcpy(type, "EV_KEY");
-        break;
-
-    case 2:
-        strcpy(type, "EV_REL");
-        break;
-
-    case 3:
-        strcpy(type, "EV_ABS");
-        break;
-
-    case 4:
-        strcpy(type, "EV_MSC");
-        break;
-
-    case 5:
-        strcpy(type, "EV_SW");
-        break;
-
-    default:
-        strcpy(type, "other");
-        break;
-    }
-}
 
 int main(int argc, char *argv[])
 {
@@ -119,11 +129,35 @@ int main(int argc, char *argv[])
         struct timeval time = i_event.time;
         char ev_type[20];
         get_event_type(&i_event, ev_type);
-        char code[20];
-        get_code(&i_event, code);
-        printf("EVENT @t=%lds %ldus\n", time.tv_sec, time.tv_usec);
-        printf("Event type %s, code %s\n", ev_type, code);
-        printf("value  %d \n", i_event.value);
+
+        if(i_event.type == EV_KEY) { // Keyboard events
+            if(i_event.code > KEY_MICMUTE) {
+                continue;
+            }
+            char code[20];
+            get_keyboard_codes(&i_event, code);
+            printf("Keyboard event intersepted\n");
+            printf("EVENT @t=%lds %ldus\n", time.tv_sec, time.tv_usec);
+            printf("Event type %d => %s, code %d => %s\n", i_event.type, ev_type, i_event.code, code);
+            printf("value  %d \n", i_event.value);
+        }
+        else if(i_event.type == EV_ABS) { // Mouse events
+            // char code[20];
+            // get_code(&i_event, code);
+            // printf("Mouse Event intersepted\n");
+            // printf("EVENT @t=%lds %ldus\n", time.tv_sec, time.tv_usec);
+            // printf("Event type %d => %s, code %d => %s\n", i_event.type, ev_type, i_event.code, code);
+            // printf("value  %d \n", i_event.value);
+        }
+        else {
+            // printf("------\n");
+            // printf("OTHER Event intersepted\n");
+            // printf("EVENT @t=%lds %ldus\n", time.tv_sec, time.tv_usec);
+            // printf("Event type %d , code %d \n", i_event.type, i_event.code);
+            // printf("------\n");
+
+        }
+
     }
 }
 
