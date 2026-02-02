@@ -22,7 +22,9 @@ int initialize_window(void)
         SDL_WINDOWPOS_CENTERED,
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
-        SDL_WINDOW_BORDERLESS);
+        // SDL_WINDOW_BORDERLESS
+        SDL_WINDOW_RESIZABLE
+    );
 
     if (!window)
     {
