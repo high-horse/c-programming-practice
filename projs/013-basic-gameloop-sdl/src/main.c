@@ -1,12 +1,97 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "types.h"
+#include <SDL2/SDL.h>
 
+#include "./types.h"
 
+int game_is_running = false;
+SDL_Window *window = NULL;
+SDL_Renderer *renderer = NULL;
 
+int initialize_window(void)
+{
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+    {
+        fprintf(stderr, "ERROR initializing SDL.\n");
+        return false;
+    }
 
+    window = SDL_CreateWindow(
+        NULL,
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        WINDOW_WIDTH,
+        WINDOW_HEIGHT,
+        SDL_WINDOW_BORDERLESS);
 
-int main() {
+    if (!window)
+    {
+        fprintf(stderr, "ERROR creating SDL window.\n");
+        return false;
+    }
 
+    renderer = SDL_CreateRenderer(window, -1, 0);
+    if (!renderer)
+    {
+        fprintf(stderr, "Error creating SDL renderer.\n");
+        return false;
+    }
+
+    return true;
 }
 
+void process_input(void)
+{
+    SDL_Event event;
+    SDL_PollEvent(&event);
+
+    switch (event.type)
+    {
+    case SDL_QUIT:
+        game_is_running = false;
+        break;
+
+    case SDL_KEYDOWN:
+        if (event.key.keysym.sym == SDLK_ESCAPE)
+            game_is_running = false;
+        break;
+
+    default:
+        break;
+    }
+}
+
+void update(void)
+{
+}
+
+void render(void)
+{
+}
+
+void setup(void) {
+    
+}
+
+void destroy_window(void)
+{
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
+
+int main()
+{
+    game_is_running = initialize_window();
+
+    setup();
+    while (game_is_running)
+    {
+        process_input();
+        update();
+        render();
+    }
+
+    destroy_window();
+    return true;
+}
