@@ -67,10 +67,13 @@ void update(void)
 
 void render(void)
 {
+    SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
 }
 
 void setup(void) {
-    
+
 }
 
 void destroy_window(void)
