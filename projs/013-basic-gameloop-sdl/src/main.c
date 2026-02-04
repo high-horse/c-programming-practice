@@ -9,7 +9,8 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 
 int last_frame_time = 0;
-struct Ball{
+struct Ball
+{
     float x;
     float y;
     float width;
@@ -33,8 +34,7 @@ int initialize_window(void)
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
         // SDL_WINDOW_BORDERLESS
-        SDL_WINDOW_RESIZABLE
-    );
+        SDL_WINDOW_RESIZABLE);
 
     if (!window)
     {
@@ -73,38 +73,57 @@ void process_input(void)
     }
 }
 
-
-void setup(void) {
+void setup(void)
+{
     ball.x = 20;
     ball.y = 20;
     ball.width = 15;
     ball.height = 15;
 }
 
-void update(void)
+void old_update(void)
 {
-    while(! SDL_TICKS_PASSED(SDL_GetTicks(), last_frame_time + FRAME_TARGET_TIME));
+    while (!SDL_TICKS_PASSED(SDL_GetTicks(), last_frame_time + FRAME_TARGET_TIME))
+        ;
 
+    // get delta time factor conversion to second to be used to update objects later
+    float delta_time = (SDL_GetTicks() - last_frame_time) / 1000.0f;
     last_frame_time = SDL_GetTicks();
 
-    ball.x += 2;
-    ball.y += 2;
+    ball.x += 60 * delta_time;
+    ball.y += 50 * delta_time; 
+}
+
+void update(void)
+{
+
+    // int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - last_frame_time);
+
+    // if(time_to_wait > 0  && time_to_wait <= FRAME_TARGET_TIME) {
+    //     SDL_Delay(time_to_wait);
+    // }
+    
+    // get delta time factor conversion to second to be used to update objects later
+    float delta_time = (SDL_GetTicks() - last_frame_time) / 1000.0f;
+    last_frame_time = SDL_GetTicks();
+
+    ball.x += 50 * delta_time;
+    ball.y += 60 * delta_time;
 }
 
 void render(void)
 {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0 ,255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     // Draw a rectangle
     SDL_Rect ball_rect = {
-        (int) ball.x, 
-        (int) ball.y, 
-        (int) ball.width, 
-        (int) ball.height
-    };
+        (int)ball.x,
+        (int)ball.y,
+        (int)ball.width,
+        (int)ball.height};
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
 
     SDL_RenderFillRect(renderer, &ball_rect);
 
@@ -114,7 +133,6 @@ void render(void)
     // SDL_RenderClear(renderer);
     // SDL_RenderPresent(renderer);
 }
-
 
 void destroy_window(void)
 {
