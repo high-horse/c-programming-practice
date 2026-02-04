@@ -8,6 +8,7 @@ int game_is_running = false;
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 
+int last_frame_time = 0;
 struct Ball{
     float x;
     float y;
@@ -82,9 +83,12 @@ void setup(void) {
 
 void update(void)
 {
-    ball.x += 1;
-    ball.y += 1;
-     
+    while(! SDL_TICKS_PASSED(SDL_GetTicks(), last_frame_time + FRAME_TARGET_TIME));
+
+    last_frame_time = SDL_GetTicks();
+
+    ball.x += 2;
+    ball.y += 2;
 }
 
 void render(void)
