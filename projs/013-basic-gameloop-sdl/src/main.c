@@ -9,15 +9,15 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 
 int last_frame_time = 0;
-struct Ball
+typedef struct
 {
     float x;
     float y;
     float width;
     float height;
-};
+} Ball;
 
-struct Ball ball;
+Ball ball;
 
 int initialize_window(void)
 {
