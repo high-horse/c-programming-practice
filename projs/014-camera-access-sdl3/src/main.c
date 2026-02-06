@@ -21,6 +21,7 @@ App app;
 bool error;
 bool show_red = true;
 Uint64 last_toggle;
+SDL_FRect rect;
 
 bool initialize(void)
 {
@@ -39,7 +40,7 @@ bool initialize(void)
     if (!app.window)
     {
         fprintf(stderr, "Error creating window: %s\n", SDL_GetError());
-        return false;        
+        return false;
     }
 
     app.renderer = SDL_CreateRenderer(app.window, NULL);
@@ -53,8 +54,17 @@ bool initialize(void)
     return true;
 }
 
+void setup()
+{
+    rect.h = 20;
+    rect.w = 20;
+    rect.x = 120;
+    rect.y = 120;
+}
+
 void render(void)
 {
+
     if (show_red)
     {
         SDL_SetRenderDrawColor(app.renderer, 255, 0, 0, 255);
@@ -63,17 +73,23 @@ void render(void)
     {
         SDL_SetRenderDrawColor(app.renderer, 0, 255, 0, 255);
     }
-
     SDL_RenderClear(app.renderer);
+
+    SDL_SetRenderDrawColor(app.renderer, 0, 0, 255, 255);
+    SDL_RenderFillRect(app.renderer, &rect);
+    // SDL_RenderClear(app.renderer);
     SDL_RenderPresent(app.renderer);
 }
 
 void update(void)
 {
     Uint64 now_time = SDL_GetTicks();
-    if(now_time - last_toggle >= 1000) {
+    if (now_time - last_toggle >= 1000)
+    {
         show_red = !show_red;
         last_toggle = now_time;
+        rect.x += 25;
+        rect.y += 25;
     }
 }
 
@@ -93,6 +109,12 @@ bool handle_event()
             printf("closing...\n");
             app.running = false;
             break;
+
+        case SDL_EVENT_KEY_DOWN:
+            if(event.key.key == SDLK_ESCAPE) {
+                printf("closing...\n");
+                app.running = false;
+            }
 
         default:
             break;
@@ -120,13 +142,13 @@ int main(int argc, char *argv[])
     {
         return EXIT_FAILURE;
     }
+    setup();
     while (app.running)
     {
         handle_event();
 
         update();
         render();
-
     }
     destroy();
     // SDL_Delay(2000);
