@@ -33,8 +33,9 @@ int initialize_window(void)
         SDL_WINDOWPOS_CENTERED,
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
-        // SDL_WINDOW_BORDERLESS
-        SDL_WINDOW_RESIZABLE);
+         SDL_WINDOW_BORDERLESS
+        //SDL_WINDOW_RESIZABLE
+);
 
     if (!window)
     {
@@ -75,8 +76,14 @@ void process_input(void)
 
 void setup(void)
 {
-    ball.x = 20;
-    ball.y = 20;
+
+	int x, y;
+	SDL_GetWindowPosition(window, &x, &y);
+printf("position aquired x=>%d y=>%d\n", x, y);
+    // ball.x = 20;
+    // ball.y = 20;
+ball.x = x;
+ball.y = y;
     ball.width = 15;
     ball.height = 15;
 }
@@ -107,8 +114,8 @@ void update(void)
     float delta_time = (SDL_GetTicks() - last_frame_time) / 1000.0f;
     last_frame_time = SDL_GetTicks();
 
-    ball.x += 50 * delta_time;
-    ball.y += 60 * delta_time;
+    // ball.x += 50 * delta_time;
+    // ball.y += 60 * delta_time;
 }
 
 void render(void)
