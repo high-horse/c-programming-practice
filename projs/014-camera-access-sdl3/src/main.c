@@ -22,6 +22,9 @@ typedef struct {
 
     SDL_Texture *texture;
 
+    int take_screenshot;
+    int screenshot_no;
+
 } AppState; 
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
@@ -78,11 +81,23 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     {
         if(app_state->texture == NULL) {
             SDL_SetWindowSize(app_state->window, frame->w, frame->h);
+            app_state->width = frame->w;
+            app_state->height = frame->h;
             app_state->texture = SDL_CreateTexture(app_state->renderer, frame->format, SDL_TEXTUREACCESS_STREAMING, frame->w, frame->h);
         }
         else {
              SDL_UpdateTexture(app_state->texture, NULL, frame->pixels, frame->pitch);
         }
+
+        if(app_state->take_screenshot == 1) {
+            app_state->take_screenshot = 0;
+            char fname[100]; fname[0] = '\0';
+
+            sprintf(fname, "screenshpt-%d.bmp", app_state->screenshot_no);
+            SDL_SaveBMP(frame, fname);
+            app_state->screenshot_no ++;
+        }
+
         SDL_ReleaseCameraFrame(app_state->camera, frame);
     }
     
@@ -100,8 +115,14 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
+    AppState *app_state = appstate;
+
     if(event->type == SDL_EVENT_QUIT) {
         return SDL_APP_SUCCESS;
+    } else if(event->type == SDL_EVENT_KEY_DOWN) {
+        if(event->key.scancode = SDL_SCANCODE_S ){
+            app_state->take_screenshot = 1;
+        }
     }
     return SDL_APP_CONTINUE;
 }
