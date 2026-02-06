@@ -2,7 +2,7 @@
 
 build:
 	@echo "building ..."
-	gcc -std=c2x -Wall -Wextra src/*  -o bin/a.out -lSDL3
+	gcc -std=c2x -Wall -Wextra src/main.c -o bin/a.out -lSDL3
 	@echo "built complete"
 
 

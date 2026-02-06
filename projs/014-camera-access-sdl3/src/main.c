@@ -1,165 +1,150 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
+#define SDL_MAIN_USE_CALLBACLS
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-
 #include "constants.h"
 
-typedef struct
-{
-    bool running;
 
-    int window_width;
-    int window_height;
 
+typedef struct {
     SDL_Window *window;
     SDL_Renderer *renderer;
-} App;
 
-App app;
-bool error;
-bool show_red = true;
-Uint64 last_toggle;
-SDL_FRect rect;
+    int width;
+    int height;
 
-bool initialize(void)
+    int camera_count;
+    SDL_CameraID *devices;
+    SDL_Camera *camera;
+
+    SDL_Texture *texture;
+
+} AppState; 
+
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_CAMERA))
-    {
-        perror("ERROR ");
-        fprintf(stderr, "ERROR INITIALIZING SDL: %s\n", SDL_GetError());
-        return false;
-    }
-    app.window = SDL_CreateWindow(
-        WINDOW_TITLE,
-        WINDOW_WIDTH,
-        WINDOW_HEIGHT,
-        SDL_WINDOW_RESIZABLE);
+    AppState *app_state = malloc(sizeof(AppState));
+    *app_state = (AppState) {
+        .width=WINDOW_WIDTH,
+        .height=WINDOW_HEIGHT
+    };
+    *appstate = app_state;
 
-    if (!app.window)
-    {
-        fprintf(stderr, "Error creating window: %s\n", SDL_GetError());
-        return false;
+    if(! SDL_Init(SDL_INIT_VIDEO | SDL_INIT_CAMERA)) {
+        SDL_Log("could not initialize sdl: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
     }
 
-    app.renderer = SDL_CreateRenderer(app.window, NULL);
-    if (!app.renderer)
-    {
-        fprintf(stderr, "error creating renderer: %s \n", SDL_GetError());
-        return false;
+    if(! SDL_CreateWindowAndRenderer(WINDOW_TITLE, app_state->width, app_state->height, 0, &(app_state->window), &(app_state->renderer))) {
+        SDL_Log("could not initialize window and renderer: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
     }
 
-    app.running = true;
-    return true;
+    SDL_CameraID *devices = SDL_GetCameras(&app_state->camera_count);
+    if(devices == NULL || app_state->camera_count ==0) {
+        SDL_Log("Cant enumerate available cameras : %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+    app_state->devices  = devices;
+    SDL_Log("Found Camera count %d \n", app_state->camera_count);
+
+
+    // open 1st camera
+    app_state->camera = SDL_OpenCamera(devices[0], NULL);
+    if(app_state->camera == NULL) {
+        SDL_Log("Could not open camera: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+
+    // get camera format
+    SDL_CameraSpec spec;
+    SDL_GetCameraFormat(app_state->camera, &spec);
+    int FPS = spec.framerate_numerator / spec.framerate_denominator;
+    SDL_Log("Got camera of %dx%d and FPS %d.", spec.width, spec.height, FPS);
+
+
+    return SDL_APP_CONTINUE;
 }
 
-void setup()
+SDL_AppResult SDL_AppIterate(void *appstate)
 {
-    rect.h = 20;
-    rect.w = 20;
-    rect.x = 120;
-    rect.y = 120;
+    AppState* app_state = appstate;
 
-    printf("counting camera\n");
+    SDL_Surface *frame = SDL_AcquireCameraFrame(app_state->camera, NULL);
+    if (frame != NULL) 
+    {
+        if(app_state->texture == NULL) {
+            SDL_SetWindowSize(app_state->window, frame->w, frame->h);
+            app_state->texture = SDL_CreateTexture(app_state->renderer, frame->format, SDL_TEXTUREACCESS_STREAMING, frame->w, frame->h);
+        }
+        else {
+             SDL_UpdateTexture(app_state->texture, NULL, frame->pixels, frame->pitch);
+        }
+        SDL_ReleaseCameraFrame(app_state->camera, frame);
+    }
+    
 
-    int count = -1;
-    SDL_CameraID *cameraIDs = SDL_GetCameras(&count);
-    printf("cameras found %d %d\n", count, cameraIDs[0]);
-    // SDL_Camera *camera = SDL_OpenCamera(); 
+    SDL_SetRenderDrawColorFloat(app_state->renderer, 0.4f, 0.6f, 1.0f, SDL_ALPHA_OPAQUE_FLOAT);
+    SDL_RenderClear(app_state->renderer);
 
-    SDL_free(cameraIDs);
+    if(app_state->texture != NULL) {
+        SDL_RenderTexture(app_state->renderer, app_state->texture, NULL, NULL);
+    }
+
+    SDL_RenderPresent(app_state->renderer);
+    return SDL_APP_CONTINUE;
 }
 
-void render(void)
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-
-    if (show_red)
-    {
-        SDL_SetRenderDrawColor(app.renderer, 255, 0, 0, 255);
+    if(event->type == SDL_EVENT_QUIT) {
+        return SDL_APP_SUCCESS;
     }
-    else
-    {
-        SDL_SetRenderDrawColor(app.renderer, 0, 255, 0, 255);
-    }
-    // SDL_RenderClear(app.renderer);
-
-    // SDL_SetRenderDrawColor(app.renderer, 0, 0, 255, 255);
-    // SDL_RenderFillRect(app.renderer, &rect);
-    SDL_RenderClear(app.renderer);
-    SDL_RenderPresent(app.renderer);
+    return SDL_APP_CONTINUE;
 }
 
-void update(void)
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-    Uint64 now_time = SDL_GetTicks();
-    if (now_time - last_toggle >= 1000)
-    {
-        show_red = !show_red;
-        last_toggle = now_time;
-        rect.x += 25;
-        rect.y += 25;
+    AppState* app_state = appstate;
+
+    if(app_state->devices != NULL) {
+        free(app_state->devices);
     }
+
+    if(app_state->camera != NULL) {
+        SDL_CloseCamera(app_state->camera);
+    }
+
+    if(app_state->texture != NULL) {
+        SDL_DestroyTexture(app_state->texture);
+    }
+    free(app_state);
+
 }
 
-bool handle_event()
-{
+
+int main(int argc, char **argv) {
+    void *appstate;
+    if (SDL_AppInit(&appstate, argc, argv) != SDL_APP_CONTINUE) {
+        return 1;
+    }
 
     SDL_Event event;
-    while (SDL_PollEvent(&event) > 0)
-    {
-        switch (event.type)
-        {
-        case SDL_EVENT_MOUSE_BUTTON_DOWN:
-            printf("Mouse btn down encountered\n");
-            break;
+    SDL_AppResult result = SDL_APP_CONTINUE;
 
-        case SDL_EVENT_QUIT:
-            printf("closing...\n");
-            app.running = false;
-            break;
-
-        case SDL_EVENT_KEY_DOWN:
-            if(event.key.key == SDLK_ESCAPE) {
-                printf("closing...\n");
-                app.running = false;
-            }
-
-        default:
-            break;
+    while(result == SDL_APP_CONTINUE) {
+        while(SDL_PollEvent(&event)) {
+            result = SDL_AppEvent(appstate, &event);
+        }
+        if(result == SDL_APP_CONTINUE) {
+            result = SDL_AppIterate(appstate);
         }
     }
 
-    return true;
-}
-
-void destroy(void)
-{
-    app.running = false;
-    SDL_DestroyRenderer(app.renderer);
-    SDL_DestroyWindow(app.window);
+    SDL_AppQuit(appstate, result);
     SDL_Quit();
-}
-
-int main(int argc, char *argv[])
-{
-    (void)argc;
-    (void)argv;
-
-    printf("Starting ... \n");
-    if (!initialize())
-    {
-        return EXIT_FAILURE;
-    }
-    setup();
-    while (app.running)
-    {
-        handle_event();
-
-        update();
-        render();
-    }
-    destroy();
-    // SDL_Delay(2000);
-    return EXIT_SUCCESS;
+    return 0;
 }
