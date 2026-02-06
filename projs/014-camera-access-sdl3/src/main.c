@@ -25,7 +25,7 @@ SDL_FRect rect;
 
 bool initialize(void)
 {
-    if (!SDL_Init(SDL_INIT_VIDEO))
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_CAMERA))
     {
         perror("ERROR ");
         fprintf(stderr, "ERROR INITIALIZING SDL: %s\n", SDL_GetError());
@@ -60,6 +60,15 @@ void setup()
     rect.w = 20;
     rect.x = 120;
     rect.y = 120;
+
+    printf("counting camera\n");
+
+    int count = -1;
+    SDL_CameraID *cameraIDs = SDL_GetCameras(&count);
+    printf("cameras found %d %d\n", count, cameraIDs[0]);
+    // SDL_Camera *camera = SDL_OpenCamera(); 
+
+    SDL_free(cameraIDs);
 }
 
 void render(void)
@@ -73,11 +82,11 @@ void render(void)
     {
         SDL_SetRenderDrawColor(app.renderer, 0, 255, 0, 255);
     }
-    SDL_RenderClear(app.renderer);
-
-    SDL_SetRenderDrawColor(app.renderer, 0, 0, 255, 255);
-    SDL_RenderFillRect(app.renderer, &rect);
     // SDL_RenderClear(app.renderer);
+
+    // SDL_SetRenderDrawColor(app.renderer, 0, 0, 255, 255);
+    // SDL_RenderFillRect(app.renderer, &rect);
+    SDL_RenderClear(app.renderer);
     SDL_RenderPresent(app.renderer);
 }
 
