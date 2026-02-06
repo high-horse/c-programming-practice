@@ -32,7 +32,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
     AppState *app_state = malloc(sizeof(AppState));
     *app_state = (AppState) {
         .width=WINDOW_WIDTH,
-        .height=WINDOW_HEIGHT
+        .height=WINDOW_HEIGHT,
+        .take_screenshot=0,
+        .screenshot_no=0
     };
     *appstate = app_state;
 
@@ -120,7 +122,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     if(event->type == SDL_EVENT_QUIT) {
         return SDL_APP_SUCCESS;
     } else if(event->type == SDL_EVENT_KEY_DOWN) {
-        if(event->key.scancode = SDL_SCANCODE_S ){
+        if(event->key.scancode == SDL_SCANCODE_S ){
             app_state->take_screenshot = 1;
         }
     }
