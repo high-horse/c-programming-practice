@@ -37,8 +37,6 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-
-  
     // create fake mouse event
     srand(time(NULL));
     while (1)
