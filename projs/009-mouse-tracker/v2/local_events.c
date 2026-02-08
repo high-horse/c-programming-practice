@@ -7,11 +7,11 @@
 #include <sys/time.h>
 #include <libevdev-1.0/libevdev/libevdev.h>
 
-void get_keyboard_codes(struct input_event *p_event, char *k_code) {
+void get_keyboard_codes_unused(struct input_event *p_event, char *k_code) {
     
 }
 
-void get_keyboard_codes_old(struct input_event *p_event, char *k_code)
+void get_keyboard_codes(struct input_event *p_event, char *k_code)
 {
     switch (p_event->code)
     {

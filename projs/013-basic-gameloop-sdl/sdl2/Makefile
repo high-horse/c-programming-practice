@@ -4,6 +4,9 @@ build-vanilla:
 build:
 	gcc -std=c2x -Wall -Wextra src/*.c src/*.h  -lSDL2 -o bin/a.out
 
+static:
+	gcc -std=c2x -Wall -static  -Wextra src/*.c src/*.h  -lSDL2 -o bin/a.out
+
 run:
 	bin/a.out
 

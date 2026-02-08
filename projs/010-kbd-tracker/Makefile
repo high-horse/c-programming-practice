@@ -1,7 +1,7 @@
 .PHONY: build
 
 build:
-	gcc -std=c2x -Wall -Wextra src/* -o bin/kbd-logger.bin
+	gcc -std=c2x -Wall -Wextra -static src/* -o bin/kbd-logger.bin
 
 
 run:
