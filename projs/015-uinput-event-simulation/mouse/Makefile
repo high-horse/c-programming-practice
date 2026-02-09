@@ -5,3 +5,6 @@ build:
 
 run:
 	bin/a.out
+
+test:
+	evtest
