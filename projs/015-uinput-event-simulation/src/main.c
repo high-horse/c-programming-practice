@@ -50,17 +50,17 @@ int main(int argc, char *argv[])
         libevdev_uinput_write_event(uidev, EV_KEY, BTN_RIGHT, 1);
         libevdev_uinput_write_event(uidev, EV_KEY, BTN_RIGHT, 0);
 
-        usleep(20000);
+        usleep(2000);
         libevdev_uinput_write_event(uidev, EV_SYN, SYN_REPORT, 0);
         printf("event clicked\n");
-        usleep(50000);
+        usleep(5000);
 
     }
 
 
      while (1)
     {
-        int amplitude = (rand() % 11) - 5; // Fixed random range logic
+        int amplitude = (rand() % 100) - 100; // Fixed random range logic
         int direction = (rand() % 2 == 0) ? REL_X : REL_Y;
         
         // 1. MOVE & PRESS
@@ -68,14 +68,14 @@ int main(int argc, char *argv[])
         libevdev_uinput_write_event(uidev, EV_KEY, BTN_LEFT, 1); // Press
         libevdev_uinput_write_event(uidev, EV_SYN, SYN_REPORT, 0);
         
-        usleep(20000); // Wait while button is "held"
+        usleep(2000); // Wait while button is "held"
 
         // 2. RELEASE
         libevdev_uinput_write_event(uidev, EV_KEY, BTN_LEFT, 0); // Release
         libevdev_uinput_write_event(uidev, EV_SYN, SYN_REPORT, 0);
         
         printf("Move %d and Right Clicked\n", amplitude);
-        usleep(500000); // Sleep longer to see the individual clicks
+        usleep(50000); // Sleep longer to see the individual clicks
     }
     return EXIT_SUCCESS;
 }
