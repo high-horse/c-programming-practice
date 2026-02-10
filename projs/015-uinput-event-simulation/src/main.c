@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     while (false)
     {
         // random -20 to 20
-        int amplitude = rand() % 5 - 5;
+        int amplitude = (rand() % 101) - 50;
         int direction = rand() % 2  == 0 ?  REL_X : REL_Y;
         printf("move amplitude=%d direction=%d\n", amplitude, direction);
 
