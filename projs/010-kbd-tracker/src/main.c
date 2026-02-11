@@ -62,10 +62,10 @@ int main(int argc, char *argv[])
         read(fp, &ev, sizeof ev);
         if (ev.type != EV_KEY)
         {
-            continue;
+            // continue;
         }
-        if (ev.value != 1)
-            continue;
+        // if (ev.value != 1)
+        //     continue;
         char code[20] = {0};
         get_keyboard_codes(&ev, code);
         printf("keyboard parsed %s\n", code);
