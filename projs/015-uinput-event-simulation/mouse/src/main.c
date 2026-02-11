@@ -57,11 +57,13 @@ int main(int argc, char *argv[])
 
     }
 
+int amplitude = 0;
+int direction = 0;
 
      while (1)
     {
-        int amplitude = (rand() % 100) - 100; // Fixed random range logic
-        int direction = (rand() % 2 == 0) ? REL_X : REL_Y;
+        amplitude = (rand() % 201) - 100; // Fixed random range logic
+        direction = (rand() % 2 == 0) ? REL_X : REL_Y;
         
         // 1. MOVE & PRESS
         libevdev_uinput_write_event(uidev, EV_REL, direction, amplitude);
