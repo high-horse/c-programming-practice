@@ -1,0 +1,5 @@
+.PHONY: build dev
+
+build:
+    gcc -std=c23 -Wall -Wextra src/* $(shell pkg-config --cflags --libs libevdev) -o bin/a.out
+    

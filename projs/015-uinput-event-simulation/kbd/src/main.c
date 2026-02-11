@@ -4,6 +4,14 @@
 #include <libevdev-1.0/libevdev/libevdev.h>
 #include <libevdev-1.0/libevdev/libevdev-uinput.h>
 
+void set_events(void *pdev){
+    struct libevdev *dev = pdev;
+    libevdev_enable_event_type(dev, EV_KEY);
+
+    libevdev_enable_event_type(dev, KEY_ESC);
+    // TODO: handle remaingin events
+}
+
 int main(int argc, char *argv[])
 {
     (void)(argc);
@@ -23,11 +31,8 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    while (true)
-    {
 
-        // sleep(1);
-    }
 
     return EXIT_SUCCESS;
 }
+
