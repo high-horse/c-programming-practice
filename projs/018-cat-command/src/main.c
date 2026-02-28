@@ -6,8 +6,8 @@ int main(const int argc, const char *argv[]) {
   if (argc == 1) {
     fd[0] = stdin;
   } else {
-    for (int i = 0; i < argc-1; i++) {
-      fd[i] = fopen(argv[i+1], "r");
+    for (int i = 0; i < argc - 1; i++) {
+      fd[i] = fopen(argv[i + 1], "r");
       if (fd[i] == NULL) {
         perror("FILE COULD NOT BE OPENED :");
         exit(EXIT_FAILURE);
@@ -16,9 +16,15 @@ int main(const int argc, const char *argv[]) {
   }
 
   int c;
-  for (int i = 0; i < argc-1; i++) {
-    while ((c = fgetc(fd[i])) != EOF) {
+  if (argc == 1) {
+    while ((c = fgetc(fd[0])) != EOF) {
       putc(c, stdout);
+    }
+  } else {
+    for (int i = 0; i < argc - 1; i++) {
+      while ((c = fgetc(fd[i])) != EOF) {
+        putc(c, stdout);
+      }
     }
   }
 
