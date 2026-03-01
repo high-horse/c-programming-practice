@@ -4,12 +4,36 @@
 #include <stdbool.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <time.h>
 #include <unistd.h>
+#include <string.h>
 
 #define PORT 9999
 #define BUFFER_SIZE 1024
 
 bool run_server = true;
+
+void send_HTML(int *sock, const char *file) {
+    FILE *html = fopen(file, "rb");
+    if(html == NULL) {
+        perror("FAILED TO OPEN FILE");
+        return;
+    }
+    
+    char buffer[BUFFER_SIZE] = {0};
+    size_t read_size = 0;
+    char *header =  "HTTP/1.1 200 OK\r\n"
+           "Content-Type: text/html\r\n"
+           "Connection: close\r\n"
+           "\r\n";
+    
+    send(*sock, header, strlen(header), 0);
+    while ((read_size = fread(buffer, 1, BUFFER_SIZE, html)) > 0) {
+        send(*sock, buffer, read_size, 0);
+    }
+    fclose(html);
+
+}
 
 int main(){
     int server_sock_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -34,18 +58,22 @@ int main(){
         exit(EXIT_FAILURE);
     }
     printf("listening on port %d\nWaiting for connection\n", PORT);
+    struct sockaddr_in client_address;
+    socklen_t client_len = sizeof(client_address);
+    int client_socket;
     while(run_server) {
-        struct sockaddr_in client_address;
-        socklen_t client_len = sizeof(client_address);
-        int client_socket = accept(server_sock_fd, (struct sockaddr *)&client_address, &client_len);
+        client_socket = accept(server_sock_fd, (struct sockaddr *)&client_address, &client_len);
         if(client_socket < 0) {
             perror("FAILED TO ACCEPT CONN:");
             continue;
         }
         printf("client connected\n");
+        send_HTML(&client_socket, "/home/camel/Desktop/extra/C/C-Programming-Practice/networking/http/v3-multiple-files/src/static/index.html");
+        shutdown(client_socket, SHUT_WR);
         close(client_socket);
         printf("client disconnected\n");
         
     }
+    close(server_sock_fd);
     return EXIT_SUCCESS;
 }
