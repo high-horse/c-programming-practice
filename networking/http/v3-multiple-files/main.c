@@ -14,6 +14,7 @@
 bool run_server = true;
 
 void send_HTML(int *sock, const char *file) {
+    printf("parsed route %s\n", file);
     FILE *html = fopen(file, "rb");
     if(html == NULL) {
         perror("FAILED TO OPEN FILE");
@@ -33,6 +34,36 @@ void send_HTML(int *sock, const char *file) {
     }
     fclose(html);
 
+}
+
+char* parse_route(const char *token){
+    if(
+        strcmp(token, "/home") == EXIT_SUCCESS || 
+        strcmp(token, "/home.html") == EXIT_SUCCESS || 
+        strcmp(token, "/index") == EXIT_SUCCESS || 
+        strcmp(token, "/index.html") == EXIT_SUCCESS || 
+        strcmp(token, "/") == EXIT_SUCCESS
+    ) {
+        return "static/index.html";
+    } else if(
+        strcmp(token, "/contact") == EXIT_SUCCESS || 
+        strcmp(token, "/contact.html") == EXIT_SUCCESS
+    ) {
+        return "static/contact.html";
+    } else if(
+        strcmp(token, "/about") == EXIT_SUCCESS || 
+        strcmp(token, "/about.html") == EXIT_SUCCESS
+    ) {
+        return "static/about.html";
+    } else if(
+        strcmp(token, "/projects") == EXIT_SUCCESS ||
+        strcmp(token, "/projects.html") == EXIT_SUCCESS
+    ) {
+        return "static/projects.html";
+    } else if(strcmp(token, "favicon.ico")) {
+        return "static/facicon.ico";
+    }
+    return "static/404.html";
 }
 
 int main(){
@@ -58,20 +89,28 @@ int main(){
         exit(EXIT_FAILURE);
     }
     printf("listening on port %d\nWaiting for connection\n", PORT);
+    
     struct sockaddr_in client_address;
     socklen_t client_len = sizeof(client_address);
     int client_socket;
+    
     while(run_server) {
         client_socket = accept(server_sock_fd, (struct sockaddr *)&client_address, &client_len);
         if(client_socket < 0) {
             perror("FAILED TO ACCEPT CONN:");
             continue;
         }
-        printf("client connected\n");
-        send_HTML(&client_socket, "/home/camel/Desktop/extra/C/C-Programming-Practice/networking/http/v3-multiple-files/src/static/index.html");
+        // printf("client connected\n");
+        char request_buffer[BUFFER_SIZE] = {0};
+        recv(client_socket, request_buffer, BUFFER_SIZE, 0);
+        char *token = request_buffer + 4;
+        char *route = strtok(token, " ");
+        // printf("========tokenized========\n%s\n", route);
+        
+        send_HTML(&client_socket, parse_route(token));
         shutdown(client_socket, SHUT_WR);
         close(client_socket);
-        printf("client disconnected\n");
+        // printf("client disconnected\n");
         
     }
     close(server_sock_fd);
