@@ -33,7 +33,7 @@ int main() {
     pthread_create(&newthread, NULL, myturn, &count);
     yourturn(NULL);
     char *msg;
-    pthread_join(newthread, (void **)&msg);
+    pthread_join(newthread, (void *)&msg);
     printf("count decremented result %d \n", count);
     printf("message got %s\n", msg);
 }
