@@ -13,9 +13,11 @@ void* myturn(void * arg) {
 }
 
 void* yourturn(void *arg) {
-    while (true) {
+    int i = 0;
+    while (i<5) {
         sleep(1);
         printf("your turn\n");
+        i++;
     }
 }
 
@@ -23,4 +25,5 @@ int main() {
     pthread_t newthread;
     pthread_create(&newthread, NULL, myturn, NULL);
     yourturn(NULL);
+    pthread_join(&newthread, NULL);
 }
