@@ -1,20 +1,26 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 void* myturn(void * arg) {
-    while(true) {
+    int *count = (int *)arg; 
+    int i = 0;
+    while(i < 5) {
         sleep(1);
-        printf("my turn\n");
+        printf("my turn counter = %d iter = %d\n", (*count), i);
+        (*count)--;
+        i++;
     }
-    return NULL;
+    return "hello world from seperate thread";
 }
 
 void* yourturn(void *arg) {
     int i = 0;
-    while (i<5) {
+    while (i<3) {
         sleep(1);
         printf("your turn\n");
         i++;
@@ -23,7 +29,11 @@ void* yourturn(void *arg) {
 
 int main() {
     pthread_t newthread;
-    pthread_create(&newthread, NULL, myturn, NULL);
+    int count = 100;
+    pthread_create(&newthread, NULL, myturn, &count);
     yourturn(NULL);
-    pthread_join(&newthread, NULL);
+    char *msg;
+    pthread_join(newthread, (void **)&msg);
+    printf("count decremented result %d \n", count);
+    printf("message got %s\n", msg);
 }
