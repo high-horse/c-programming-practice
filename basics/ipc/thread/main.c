@@ -35,5 +35,5 @@ int main() {
     char *msg;
     pthread_join(newthread, (void *)&msg);
     printf("count decremented result %d \n", count);
-    printf("message got %s\n", msg);
+    printf("message got '%s'\n", msg);
 }
