@@ -11,8 +11,8 @@
 #include <unistd.h>
 #include "lib/map.h"
 
-#define PORT 9999
-#define BACKLOG 10
+#define PORT 9990
+#define BACKLOG 100
 #define BUFFER_SIZE 1024
 hashmap * route_file;
 
@@ -133,9 +133,9 @@ int main() {
  
         sscanf(request_buffer, "%s %s %s", thread_data->method, thread_data->route, thread_data->version);
         
-        // pthread_t new_conn;
-        // pthread_create(&new_conn, NULL, handle_client, (void *)thread_data);
-        handle_client(thread_data);
+        pthread_t new_conn;
+        pthread_create(&new_conn, NULL, handle_client, (void *)thread_data);
+        // handle_client(thread_data);
     }
     
     return EXIT_SUCCESS;

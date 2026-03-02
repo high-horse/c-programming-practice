@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Number of concurrent runs
-CONCURRENT=100
+CONCURRENT=1000
 
 # Path to your Python script
 PYTHON_SCRIPT="request.py"
