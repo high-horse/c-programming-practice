@@ -4,6 +4,6 @@ STANDARD=-std=c2x
 
 
 build:
-	 $(GC) $(STANDARD) $(WARNINGS) main.c -o a.out
+	 $(GC) $(STANDARD) $(WARNINGS) main.c -o chttp
 run:
-	 ./a.out
+	 ./chttp
