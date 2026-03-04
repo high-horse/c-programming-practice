@@ -1,10 +1,12 @@
+#include <asm-generic/socket.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <sys/time.h>
+#include <errno.h>
 
 #define BUFFER_SIZE 1024
 #define SOCKETERROR (-1)
@@ -46,11 +48,23 @@ int main(int argc, char *argv[]){
      int result = bind(udp_rx_socket, (struct sockaddr *)&my_addr, sizeof(my_addr));
      check(result, "FAILED TO BIND SOCKET TO ADDR:");
      
+     struct timeval timeout ={
+        .tv_sec = 5,
+        .tv_usec = 0
+     };
+     int err =setsockopt(udp_rx_socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+     
+     check(err, "FAILED TO SET TIMEOUT");
+     
      socklen_t addr_len = sizeof(peer_addr);
      int bytes_recvd = recvfrom(udp_rx_socket, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&peer_addr, &addr_len);
+     if(bytes_recvd < 1 &&  errno == EWOULDBLOCK) {
+         printf("CONNECTION TIMEOUT\n");
+         exit(EXIT_FAILURE);
+     }
      check(bytes_recvd, "recvfrom FAILED:");
      
-     printf("RECIEVED A PSCKET FROM %s:%d -- Message = %s\n", inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port), buffer);
+     printf("RECIEVED PACKET FROM %s:%d -- Message = %s\n", inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port), buffer);
      
      close(udp_rx_socket);
      return EXIT_SUCCESS;
