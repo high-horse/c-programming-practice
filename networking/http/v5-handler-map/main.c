@@ -10,7 +10,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#define PORT 9999
+#define PORT 9990
 #define BACKLOG 10
 #define BUFFER_SIZE 1024
 
@@ -65,19 +65,20 @@ void success_response(Client *client, const char *msg) {
 }
 
 void error_response(Client *client, const char *header, const char *msg) {
-    send(client->client_fd, header, strlen(header), 0);
-    if (send(client->client_fd, msg, strlen(msg), 0) < 0) {
-      perror("FAILED TO SEND MESSAGE:");
-      close(client->client_fd);
-      free(client);
-      return;
-    }
-    shutdown(client->client_fd, SHUT_WR);
+  send(client->client_fd, header, strlen(header), 0);
+  if (send(client->client_fd, msg, strlen(msg), 0) < 0) {
+    perror("FAILED TO SEND MESSAGE:");
     close(client->client_fd);
     free(client);
+    return;
+  }
+  shutdown(client->client_fd, SHUT_WR);
+  close(client->client_fd);
+  free(client);
 }
 
 void *home_request(void *ctx) {
+  sleep(1); // simulate sleep
   Client *client = (Client *)ctx;
   char *message = "THis is home page\n";
   success_response(client, message);
@@ -102,11 +103,10 @@ void *bye_handler(void *ctx) {
 
 void *not_found_handler(void *ctx) {
   Client *client = (Client *)ctx;
-  const char *not_found_header =
-      "HTTP/1.1 404 Not Found\r\n"
-      "Content-Type: text/plain\r\n"
-      "\r\n";
-  
+  const char *not_found_header = "HTTP/1.1 404 Not Found\r\n"
+                                 "Content-Type: text/plain\r\n"
+                                 "\r\n";
+
   error_response(client, not_found_header, "route not found");
   return NULL;
 }
@@ -115,17 +115,17 @@ void *dispatch_handler(void *ctx) {
   Client *client = (Client *)ctx;
   char request_buffer[BUFFER_SIZE];
   int n = recv(client->client_fd, request_buffer, BUFFER_SIZE, 0);
-  if(n < 0) {
-      perror("FAILED TO RECV:");
-      close(client->client_fd);
-      free(client);
-      return NULL;
+  if (n < 0) {
+    perror("FAILED TO RECV:");
+    close(client->client_fd);
+    free(client);
+    return NULL;
   }
   // null terminate the request buffer
   request_buffer[n] = '\0';
   sscanf(request_buffer, "%s %s %s", client->method, client->route,
          client->version);
-  
+
   handler_fn h = get_handler(handlerMap, client->route);
   if (h) {
     h(client);
@@ -145,6 +145,7 @@ int register_routes() {
 }
 
 int main() {
+    printf("process is running on pid %d\n", getpid());
   struct sockaddr_in server_addr = {
       .sin_family = AF_INET,
       .sin_port = htons(PORT),
@@ -188,7 +189,7 @@ int main() {
 
     printf("ACCEPTED CONN FROM %s:%d\n", inet_ntoa(client_addr.sin_addr),
            ntohs(client_addr.sin_port));
-    
+
     Client *client = calloc(1, sizeof(Client));
     client->client_fd = client_fd;
 
