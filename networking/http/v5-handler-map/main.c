@@ -113,6 +113,19 @@ void *not_found_handler(void *ctx) {
 
 void *dispatch_handler(void *ctx) {
   Client *client = (Client *)ctx;
+  char request_buffer[BUFFER_SIZE];
+  int n = recv(client->client_fd, request_buffer, BUFFER_SIZE, 0);
+  if(n < 0) {
+      perror("FAILED TO RECV:");
+      close(client->client_fd);
+      free(client);
+      return NULL;
+  }
+  // null terminate the request buffer
+  request_buffer[n] = '\0';
+  sscanf(request_buffer, "%s %s %s", client->method, client->route,
+         client->version);
+  
   handler_fn h = get_handler(handlerMap, client->route);
   if (h) {
     h(client);
@@ -175,18 +188,10 @@ int main() {
 
     printf("ACCEPTED CONN FROM %s:%d\n", inet_ntoa(client_addr.sin_addr),
            ntohs(client_addr.sin_port));
-
-    char request_buffer[BUFFER_SIZE];
-    err = recv(client_fd, request_buffer, BUFFER_SIZE, 0);
-    if (err < 0) {
-      perror("FAILED TO RECV:");
-      close(client_fd);
-      continue;
-    }
+    
     Client *client = calloc(1, sizeof(Client));
     client->client_fd = client_fd;
-    sscanf(request_buffer, "%s %s %s", client->method, client->route,
-           client->version);
+
     pthread_t new_conn;
     pthread_create(&new_conn, NULL, dispatch_handler, (void *)client);
     pthread_detach(new_conn);
