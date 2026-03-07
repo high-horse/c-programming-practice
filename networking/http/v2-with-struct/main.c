@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
-#include "server.h"
+#include "lib/server.h"
 
 #define BUFFER_SIZE 2048
 

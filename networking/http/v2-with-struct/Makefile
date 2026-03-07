@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -I./lib -std=c2x -Wall -Wextra
-SRC = src/main.c lib/server.c
+SRC = main.c lib/server.c
 OBJ = $(SRC:.c=.o)
 OUT = bin/server.out
 
