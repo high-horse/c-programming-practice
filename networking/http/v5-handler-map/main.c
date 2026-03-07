@@ -11,7 +11,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#define PORT 9999
+#define PORT 9990
 #define BACKLOG 10
 #define BUFFER_SIZE 1024
 #define THREAD_POOL_SIZE 30
