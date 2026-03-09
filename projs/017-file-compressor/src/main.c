@@ -82,7 +82,9 @@ int main(int argc, char *argv[]){
         perror("FAILED TO WRITE OUTPUT FILE:");
         exit(EXIT_FAILURE);
     }
-    printf("Processed file %s \n", output_filename);
+    printf("Successrully Processed file %s \n", output_filename);
+    UnloadFileData(loadedData);
+    UnloadFileData(processed_data);
     
     return EXIT_SUCCESS;
 }
