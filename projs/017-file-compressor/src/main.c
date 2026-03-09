@@ -84,18 +84,5 @@ int main(int argc, char *argv[]){
     }
     printf("Processed file %s \n", output_filename);
     
-    // FILE *compressed_fp = fopen
-
-    // InitWindow(900, 600, "File Compressor");
-    // while (!WindowShouldClose())
-    // {
-    //     BeginDrawing();
-    //     ClearBackground(RAYWHITE);
-    //     DrawText("Hello Raylib", 190, 200, 19, LIGHTGRAY);
-    //     EndDrawing();
-    // }
-    
-    // CloseWindow();
-
     return EXIT_SUCCESS;
 }
