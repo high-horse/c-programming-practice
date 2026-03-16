@@ -8,7 +8,7 @@
 #define WIN_W 800
 #define WIN_H 600
 #define FPS 60
-#define LINE_SPACING 4
+#define LINE_SPACING 2
 #define FONT_SIZE 20
 
 // Global scroll offset
@@ -48,7 +48,7 @@ void draw_buffer(DoublyLinkedList *buffer, Font font) {
             DrawRectangle(15, y - 2, WIN_W - 30, FONT_SIZE + LINE_SPACING, LIGHTGRAY);
             color = RED;
         }
-        DrawTextEx(font, cur->text, (Vector2){20, (float)y}, font.baseSize, 2, color);
+        DrawTextEx(font, cur->text, (Vector2){20, (float)y}, 16, 2, color);
         y += FONT_SIZE + LINE_SPACING;
         cur = cur->next;
     }
@@ -107,18 +107,33 @@ int main(int argc, char *argv[]) {
         destroy_list(buffer);
         return EXIT_FAILURE;
     }
+    
+    // Repeat timing
+    // float key_timer_down = 0.0f;
+    // float key_timer_up = 0.0f;
+    // const float KEY_DELAY = 0.2f;   // initial delay before repeat (seconds)
+    // const float KEY_REPEAT = 0.05f; // repeat interval (seconds)
 
     while (!WindowShouldClose()) {
         // --- Input ---
-        if (IsKeyPressed(KEY_DOWN)) {
+        if (IsKeyDown(KEY_DOWN)) {
             move_cursor_down(buffer);
             update_scroll(buffer);
-        } else if (IsKeyPressed(KEY_UP)) {
+        } 
+        
+        if (IsKeyDown(KEY_UP)) {
             move_cursor_up(buffer);
             update_scroll(buffer);
-        } else if (IsKeyPressed(KEY_LEFT)) move_cursor_left(buffer);
-        else if (IsKeyPressed(KEY_RIGHT)) move_cursor_right(buffer);
+        }
+        
+        if (IsKeyDown(KEY_LEFT)) move_cursor_left(buffer);
+        
+        if (IsKeyDown(KEY_RIGHT)) move_cursor_right(buffer);
 
+        if (IsKeyDown(KEY_BACKSPACE)) delete_char(buffer);
+        
+        if (IsKeyDown(KEY_ENTER)) insert_newline(buffer);
+        
         int key = GetCharPressed();
         while (key > 0) {
             if (key == 8) delete_char(buffer); // backspace
