@@ -1,6 +1,8 @@
 #include "linked_list.h"
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+ #include <stdio.h>
 
 Line *create_line(const char *text) {
     if(!text) text = "";
@@ -309,4 +311,51 @@ void insert_newline(DoublyLinkedList *list) {
     // Move cursor to new line
     list->current_line = new_line;
     list->cursor_col = 0;
+}
+
+
+
+
+bool parse_file(const char *filename, DoublyLinkedList *buffer) {
+    if (!buffer) return false;
+
+    FILE *fp = fopen(filename, "r");
+    if (!fp) {
+        perror("Failed to open file");
+        return false;
+    }
+
+    char line[1024]; // temporary buffer for each line
+    while (fgets(line, sizeof(line), fp)) {
+        // Remove newline character
+        line[strcspn(line, "\n")] = 0;
+        append_line(buffer, line);
+    }
+
+    fclose(fp);
+    return true;
+}
+
+int file_load(const char *filename, DoublyLinkedList *buffer) {
+    if (access(filename, F_OK) == 0) {
+        return parse_file(filename, buffer) ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
+
+    FILE *fp = fopen(filename, "w");
+    if (!fp) {
+        perror("Failed to create file");
+        return EXIT_FAILURE;
+    }
+    fclose(fp); // close the newly created file
+
+    return parse_file(filename, buffer) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+void print_buffer(DoublyLinkedList *buffer) {
+    printf("\n\n\n========\n");
+    for (Line *cur = buffer->head; cur; cur = cur->next) {
+        printf("%s\n", cur->text);
+    }
+    printf("========\n\n");
+    
 }

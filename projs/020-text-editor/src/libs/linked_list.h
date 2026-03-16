@@ -49,8 +49,10 @@ void delete_char(DoublyLinkedList *list);
 void insert_newline(DoublyLinkedList *list);
 
 // file operation
-int file_load(DoublyLinkedList *list, const char *filename);
-int file_save(DoublyLinkedList *list, const char *filename);
+int file_load(const char *filename, DoublyLinkedList *buffer);
+void print_buffer(DoublyLinkedList *buffer);
+// int file_load(DoublyLinkedList *list, const char *filename);
+// int file_save(DoublyLinkedList *list, const char *filename);
 
 // utility
 size_t get_line_count(DoublyLinkedList *list);

@@ -1,103 +1,142 @@
-#include <stdbool.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <raylib.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
+#include <raylib.h>
 #include "libs/linked_list.h"
 
-#define WIN_H 400
-#define WIN_W 600
-#define FPS 20
-#define TITLE "My text editor."
+#define WIN_W 800
+#define WIN_H 600
+#define FPS 60
+#define LINE_SPACING 4
+#define FONT_SIZE 20
 
+// Global scroll offset
+int scroll_y = 0;
 
-char *filename;
-
-
-bool parse_file(const char *filename, DoublyLinkedList *buffer) {
-    if (!buffer) return false;
-
-    FILE *fp = fopen(filename, "r");
-    if (!fp) {
-        perror("Failed to open file");
-        return false;
+// Utility: get line index in buffer
+int get_line_index(DoublyLinkedList *buffer, Line *line) {
+    int idx = 0;
+    Line *cur = buffer->head;
+    while (cur && cur != line) {
+        cur = cur->next;
+        idx++;
     }
-
-    char line[1024]; // temporary buffer for each line
-    while (fgets(line, sizeof(line), fp)) {
-        // Remove newline character
-        line[strcspn(line, "\n")] = 0;
-        append_line(buffer, line);
-    }
-
-    fclose(fp);
-    return true;
+    return idx;
 }
 
-int check_file(const char *filename, DoublyLinkedList *buffer) {
-    if (access(filename, F_OK) == 0) {
-        return parse_file(filename, buffer) ? EXIT_SUCCESS : EXIT_FAILURE;
+// Measure width of first 'len' characters
+int MeasureTextLen(const char *text, size_t len, int fontSize) {
+    if (!text) return 0;
+    char tmp[len + 1];
+    strncpy(tmp, text, len);
+    tmp[len] = '\0';
+    return MeasureText(tmp, fontSize);
+}
+
+// Draw linked-list buffer with cursor and scrolling
+void draw_buffer(DoublyLinkedList *buffer, Font font) {
+    if (!buffer) return;
+
+    int y = 20 - scroll_y;
+    Line *cur = buffer->head;
+
+    while (cur) {
+        Color color = RAYWHITE;
+        if (cur == buffer->current_line) {
+            // highlight current line
+            DrawRectangle(15, y - 2, WIN_W - 30, FONT_SIZE + LINE_SPACING, LIGHTGRAY);
+            color = RED;
+        }
+        DrawTextEx(font, cur->text, (Vector2){20, (float)y}, font.baseSize, 2, color);
+        y += FONT_SIZE + LINE_SPACING;
+        cur = cur->next;
     }
 
-    FILE *fp = fopen(filename, "w");
-    if (!fp) {
-        perror("Failed to create file");
+    // Draw cursor
+    if (buffer->current_line) {
+        int cursor_x = 20 + MeasureTextLen(buffer->current_line->text, buffer->cursor_col, font.baseSize);
+        int cursor_y = get_line_index(buffer, buffer->current_line) * (FONT_SIZE + LINE_SPACING) - scroll_y + 20;
+        DrawRectangle(cursor_x, cursor_y, 2, FONT_SIZE, RED);
+    }
+}
+
+// Update scroll so current line is visible
+void update_scroll(DoublyLinkedList *buffer) {
+    if (!buffer->current_line) return;
+    int line_y = get_line_index(buffer, buffer->current_line) * (FONT_SIZE + LINE_SPACING);
+    if (line_y - scroll_y < 0) scroll_y = line_y;
+    else if (line_y - scroll_y > WIN_H - FONT_SIZE - LINE_SPACING)
+        scroll_y = line_y - (WIN_H - FONT_SIZE - LINE_SPACING);
+}
+
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        printf("USAGE: %s <file-to-edit>\n", argv[0]);
         return EXIT_FAILURE;
     }
-    fclose(fp); // close the newly created file
 
-    return parse_file(filename, buffer) ? EXIT_SUCCESS : EXIT_FAILURE;
-}
-
-
-void print_buffer(DoublyLinkedList *buffer) {
-    printf("\n\n\n========\n\n");
-    for (Line *cur = buffer->head; cur; cur = cur->next) {
-        printf("%s\n", cur->text);
-    }
-    
-    printf("\n\n\n========\n\n");
-    
-}
-
-int main(int argc, char *argv[]){
-    if(argc != 2) {
-        printf("USAGE: %s <file-to-edit>\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-    
     char *filename = argv[1];
+
+    // Create buffer
     DoublyLinkedList *buffer = create_list();
     if (!buffer) {
-        fprintf(stderr, "Failed to create text buffer.\n");
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "Failed to create buffer\n");
+        return EXIT_FAILURE;
     }
 
-    if (check_file(filename, buffer) != EXIT_SUCCESS) {
+    if (file_load(filename, buffer) != EXIT_SUCCESS) {
         fprintf(stderr, "Error loading file: %s\n", filename);
         destroy_list(buffer);
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
-    
-    print_buffer(buffer);
-    
-    return 0;
-    
+
+    buffer->current_line = buffer->head;
+    buffer->cursor_col = 0;
+
+    // Init Raylib
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(WIN_W, WIN_H, TITLE);
+    InitWindow(WIN_W, WIN_H, "Text Editor");
     SetTargetFPS(FPS);
-    
-    while(!WindowShouldClose()) {
-        BeginDrawing();
-        {
-            ClearBackground(RAYWHITE);
-            DrawText("Hello Workd!", 20, 20, 20, BLACK);
+
+    // Load TTF font
+    Font font = LoadFont("src/resources/Roboto/static/Roboto-Regular.ttf");
+    if (font.texture.id == 0) {
+        printf("Failed to load font!\n");
+        CloseWindow();
+        destroy_list(buffer);
+        return EXIT_FAILURE;
+    }
+
+    while (!WindowShouldClose()) {
+        // --- Input ---
+        if (IsKeyPressed(KEY_DOWN)) {
+            move_cursor_down(buffer);
+            update_scroll(buffer);
+        } else if (IsKeyPressed(KEY_UP)) {
+            move_cursor_up(buffer);
+            update_scroll(buffer);
+        } else if (IsKeyPressed(KEY_LEFT)) move_cursor_left(buffer);
+        else if (IsKeyPressed(KEY_RIGHT)) move_cursor_right(buffer);
+
+        int key = GetCharPressed();
+        while (key > 0) {
+            if (key == 8) delete_char(buffer); // backspace
+            else if (key == 13) insert_newline(buffer); // enter
+            else insert_char(buffer, (char)key);
+            key = GetCharPressed();
         }
+
+        // --- Draw ---
+        BeginDrawing();
+        ClearBackground(BLACK);
+        draw_buffer(buffer, font);
         EndDrawing();
     }
-    
+
+    // Cleanup
+    UnloadFont(font);
     CloseWindow();
     destroy_list(buffer);
     return EXIT_SUCCESS;
-    
 }
