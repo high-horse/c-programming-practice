@@ -3,7 +3,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include <raylib.h>
+#include <time.h>
 #include "libs/linked_list.h"
+#include "libs/font_data.h"
 
 #define WIN_W 800
 #define WIN_H 600
@@ -177,7 +179,10 @@ int main(int argc, char *argv[]) {
     SetExitKey(KEY_NULL);  // Disable ESC to close
 
     // Load TTF font
-    Font font = LoadFont("src/resources/Roboto/static/Roboto-Regular.ttf");
+    // Font font = LoadFont("src/resources/Roboto/static/Roboto-Regular.ttf");
+    // // LoadFontFromMemory(".ttf", fontData, sizeof(fontData), 32, NULL, 0);
+    Font font = LoadFontFromMemory(".ttf", src_resources_Roboto_static_Roboto_Regular_ttf, src_resources_Roboto_static_Roboto_Regular_ttf_len, FONT_SIZE, NULL, 0);
+    
     if (font.texture.id == 0) {
         // Fallback to default font if TTF not found
         font = GetFontDefault();
@@ -243,6 +248,15 @@ int main(int argc, char *argv[]) {
             } else {
                 fprintf(stderr, "Error saving file: %s\n", filename);
             }
+        }
+        
+        if ((IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) && IsKeyPressed(KEY_Q)) {
+            if (save_file(buffer, filename) == EXIT_SUCCESS) {
+                printf("File saved: %s\n", filename);
+            } else {
+                fprintf(stderr, "Error saving file: %s\n", filename);
+            }
+            break;
         }
         
         // Mouse wheel scrolling

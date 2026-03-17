@@ -346,6 +346,7 @@ int file_load(const char *filename, DoublyLinkedList *buffer) {
         perror("Failed to create file");
         return EXIT_FAILURE;
     }
+    fputs("\n", fp);
     fclose(fp); // close the newly created file
 
     return parse_file(filename, buffer) ? EXIT_SUCCESS : EXIT_FAILURE;
