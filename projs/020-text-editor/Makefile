@@ -20,12 +20,17 @@ run: all
 clean:
 	rm -f $(TARGET)
 
+	
+build:
+	gcc -std=c2x -Wall -Wextra -Werror -o bin/main src/main.c src/libs/* -lraylib
+	
+	
 build-static:
-    gcc -std=c2x -Wall -Wextra -Werror \
-    -o bin/text-editor \
-    src/main.c src/libs/*.c \
-    -Wl,-Bstatic -lraylib -Wl,-Bdynamic \
-    -lm -ldl -lpthread -lrt -lX11 -lGL
+	gcc -std=c2x -Wall -Wextra -Werror \
+	-o bin/text-editor \
+	src/main.c src/libs/*.c \
+	-Wl,-Bstatic -lraylib -Wl,-Bdynamic \
+	-lm -ldl -lpthread -lrt -lX11 -lGL
 	
 re: clean all
 

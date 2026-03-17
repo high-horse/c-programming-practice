@@ -50,7 +50,7 @@ float MeasureTextLen(const char *text, size_t len, Font font, float fontSize) {
 }
 
 // Draw line numbers gutter
-int draw_line_numbers(DoublyLinkedList *buffer, Font font, float fontSize, int line_height, int current_line_idx) {
+int draw_line_numbers(DoublyLinkedList *buffer, Font font, float fontSize, int line_height, int current_line_idx, int win_h) {
     int line_count = 0;
     Line *cur = buffer->head;
     while (cur) {
@@ -64,15 +64,15 @@ int draw_line_numbers(DoublyLinkedList *buffer, Font font, float fontSize, int l
     int gutter_width = MeasureTextEx(font, num_str, fontSize, 1.0f).x + 20;
     
     // Draw gutter background
-    DrawRectangle(0, 0, gutter_width, WIN_H, (Color){ 40, 40, 40, 255 });
-    DrawLine(gutter_width, 0, gutter_width, WIN_H, (Color){ 60, 60, 60, 255 });
+    DrawRectangle(0, 0, gutter_width, win_h, (Color){ 40, 40, 40, 255 });
+    DrawLine(gutter_width, 0, gutter_width, win_h, (Color){ 60, 60, 60, 255 });
     
     // Draw line numbers
     int y = PADDING_Y - scroll_y;
     int idx = 0;
     cur = buffer->head;
     
-    while (cur && y < WIN_H) {
+    while (cur && y < win_h) {
         if (y + line_height > 0) {  // Only draw if visible
             snprintf(num_str, sizeof(num_str), "%d", idx + 1);
             
@@ -94,7 +94,7 @@ int draw_line_numbers(DoublyLinkedList *buffer, Font font, float fontSize, int l
 }
 
 // Draw linked-list buffer with cursor and scrolling
-void draw_buffer(DoublyLinkedList *buffer, Font font, float fontSize, int line_height, int gutter_width) {
+void draw_buffer(DoublyLinkedList *buffer, Font font, float fontSize, int line_height, int gutter_width, int win_w, int win_h) {
     if (!buffer) return;
 
     int y = PADDING_Y - scroll_y;
@@ -103,11 +103,11 @@ void draw_buffer(DoublyLinkedList *buffer, Font font, float fontSize, int line_h
     int current_line_idx = get_line_index(buffer, buffer->current_line);
 
     // Draw text content
-    while (cur && y < WIN_H) {
+    while (cur && y < win_h) {
         if (y + line_height > 0) {  // Only draw visible lines
             // Optional: subtle highlight for current line background
             if (idx == current_line_idx) {
-                DrawRectangle(gutter_width, y - 2, WIN_W - gutter_width - 10, line_height, (Color){ 50, 50, 50, 100 });
+                DrawRectangle(gutter_width, y - 2, win_w - gutter_width - 10, line_height, (Color){ 50, 50, 50, 100 });
             }
             
             DrawTextEx(font, cur->text, 
@@ -131,10 +131,10 @@ void draw_buffer(DoublyLinkedList *buffer, Font font, float fontSize, int line_h
 }
 
 // Update scroll so current line is visible with padding
-void update_scroll(DoublyLinkedList *buffer, int line_height) {
+void update_scroll(DoublyLinkedList *buffer, int line_height, int win_h) {
     if (!buffer->current_line) return;
     int line_y = get_line_index(buffer, buffer->current_line) * line_height;
-    int visible_height = WIN_H - PADDING_Y * 2;
+    int visible_height = win_h - PADDING_Y * 2;
     
     if (line_y - scroll_y < 0) {
         scroll_y = line_y - PADDING_Y;
@@ -187,6 +187,10 @@ int main(int argc, char *argv[]) {
     int line_height = FONT_SIZE + LINE_SPACING;
 
     while (!WindowShouldClose()) {
+        // Get actual window dimensions (changes when resized)
+        int win_w = GetScreenWidth();
+        int win_h = GetScreenHeight();
+        
         float deltaTime = GetFrameTime();
         
         // --- Update cursor blink ---
@@ -202,13 +206,13 @@ int main(int argc, char *argv[]) {
         // --- Input ---
         if (IsKeyPressed(KEY_DOWN) || (IsKeyDown(KEY_DOWN) && IsKeyPressedRepeat(KEY_DOWN))) {
             move_cursor_down(buffer);
-            update_scroll(buffer, line_height);
+            update_scroll(buffer, line_height, win_h);
             had_input = true;
         }
         
         if (IsKeyPressed(KEY_UP) || (IsKeyDown(KEY_UP) && IsKeyPressedRepeat(KEY_UP))) {
             move_cursor_up(buffer);
-            update_scroll(buffer, line_height);
+            update_scroll(buffer, line_height, win_h);
             had_input = true;
         }
         
@@ -229,7 +233,7 @@ int main(int argc, char *argv[]) {
         
         if (IsKeyPressed(KEY_ENTER) || (IsKeyDown(KEY_ENTER) && IsKeyPressedRepeat(KEY_ENTER))) {
             insert_newline(buffer);
-            update_scroll(buffer, line_height);
+            update_scroll(buffer, line_height, win_h);
             had_input = true;
         }
         
@@ -270,10 +274,10 @@ int main(int argc, char *argv[]) {
         ClearBackground(BG_COLOR);
         
         int current_line_idx = get_line_index(buffer, buffer->current_line);
-        int gutter_width = draw_line_numbers(buffer, font, fontSize, line_height, current_line_idx);
-        draw_buffer(buffer, font, fontSize, line_height, gutter_width);
+        int gutter_width = draw_line_numbers(buffer, font, fontSize, line_height, current_line_idx, win_h);
+        draw_buffer(buffer, font, fontSize, line_height, gutter_width, win_w, win_h);
         
-        // Draw status bar at bottom
+        // Draw status bar at bottom (using actual window height)
         int line_count = 0;
         Line *tmp = buffer->head;
         while (tmp) { line_count++; tmp = tmp->next; }
@@ -283,9 +287,11 @@ int main(int argc, char *argv[]) {
                  current_line_idx + 1, line_count, buffer->cursor_col, filename);
         
         int status_height = 25;
-        DrawRectangle(0, WIN_H - status_height, WIN_W, status_height, (Color){ 50, 50, 50, 255 });
-        DrawLine(0, WIN_H - status_height, WIN_W, WIN_H - status_height, (Color){ 70, 70, 70, 255 });
-        DrawTextEx(font, status, (Vector2){ 10, (float)(WIN_H - status_height + 4) }, 14, 1.0f, TEXT_COLOR);
+        int status_y = win_h - status_height;  // <-- Use actual window height here
+        
+        DrawRectangle(0, status_y, win_w, status_height, (Color){ 50, 50, 50, 255 });
+        DrawLine(0, status_y, win_w, status_y, (Color){ 70, 70, 70, 255 });
+        DrawTextEx(font, status, (Vector2){ 10, (float)(status_y + 4) }, 14, 1.0f, TEXT_COLOR);
         
         EndDrawing();
     }
