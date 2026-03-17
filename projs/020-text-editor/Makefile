@@ -27,10 +27,14 @@ build:
 	
 build-static:
 	gcc -std=c2x -Wall -Wextra -Werror \
-	-o bin/text-editor \
+	-o build/linux/text \
 	src/main.c src/libs/*.c \
 	-Wl,-Bstatic -lraylib -Wl,-Bdynamic \
 	-lm -ldl -lpthread -lrt -lX11 -lGL
+	
+	
+font2header:
+	xxd -i src/resources/Roboto/static/Roboto-Regular.ttf > font_data.h
 	
 re: clean all
 
