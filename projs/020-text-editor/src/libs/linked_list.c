@@ -359,3 +359,18 @@ void print_buffer(DoublyLinkedList *buffer) {
     printf("========\n\n");
     
 }
+
+int save_file(DoublyLinkedList *buffer, char *filename) {
+    FILE *fp = fopen(filename, "w");
+    if (!fp) {
+        perror("Failed to open file for writing");
+        return EXIT_FAILURE;
+    }
+
+    for (Line *cur = buffer->head; cur; cur = cur->next) {
+        fprintf(fp, "%s\n", cur->text);
+    }
+
+    fclose(fp);
+    return EXIT_SUCCESS;
+}

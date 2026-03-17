@@ -9,7 +9,7 @@ BIN_DIR = bin
 all: $(TARGET)
 
 $(TARGET): $(SRC) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(TARGET) $(SRC)  -lraylib
+	$(CC)  $(CFLAGS) -o $(TARGET) $(SRC)  -lraylib -static
 
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
@@ -20,6 +20,13 @@ run: all
 clean:
 	rm -f $(TARGET)
 
+build-static:
+    gcc -std=c2x -Wall -Wextra -Werror \
+    -o bin/text-editor \
+    src/main.c src/libs/*.c \
+    -Wl,-Bstatic -lraylib -Wl,-Bdynamic \
+    -lm -ldl -lpthread -lrt -lX11 -lGL
+	
 re: clean all
 
 .PHONY: all clean run re

@@ -51,6 +51,7 @@ void insert_newline(DoublyLinkedList *list);
 // file operation
 int file_load(const char *filename, DoublyLinkedList *buffer);
 void print_buffer(DoublyLinkedList *buffer);
+int save_file(DoublyLinkedList *buffer, char *filename);
 // int file_load(DoublyLinkedList *list, const char *filename);
 // int file_save(DoublyLinkedList *list, const char *filename);
 
