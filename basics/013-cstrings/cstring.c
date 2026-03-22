@@ -1,5 +1,4 @@
 #include "cstring.h"
-#include <cstddef>
 #include <stdlib.h>
 #include <string.h>
 
@@ -42,7 +41,7 @@ bool cstring_equals_ignore_case(const CString *s1, const CString *s2){
     return strcasecmp(s1->str, s2->str) == 0;
 }
 
-int cstring_find(const CString *self, const char *substr){
+int cstring_indexof(const CString *self, const char *substr){
     if(self == NULL || self->str == NULL || substr == NULL) return -1;
     
     char *found = strstr(self->str, substr) ;
@@ -53,4 +52,15 @@ int cstring_find(const CString *self, const char *substr){
 
 bool cstring_contains(const CString *self, const char *substr){
     return strstr(self->str, substr) != NULL;
+}
+
+bool cstring_starts_with(CString *self, const char *prefix) {
+    if(self == NULL || self->str == NULL || prefix == NULL) return false;
+    return strncmp(self->str, prefix, strlen(prefix)) == 0;
+}
+
+bool cstring_ends_with(CString *self, const char *suffix) {
+    if(self == NULL || self->str == NULL || suffix == NULL) return false;
+    size_t suffix_len = strlen(suffix);
+    return suffix_len <= self->len && strcmp(self->str + self->len - suffix_len, suffix) == 0;
 }

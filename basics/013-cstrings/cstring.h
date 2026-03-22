@@ -32,11 +32,10 @@ bool cstring_equals(const CString *s1, const CString *s2);
 bool cstring_equals_ignore_case(const CString *s1, const CString *s2);
 
 // find substring
-int cstring_find(const CString *self, const char *substr);
+int cstring_indexof(const CString *self, const char *substr);
 bool cstring_contains(const CString *self, const char *substr);
-int cstring_starts_with(CString *self, const char *prefix);
-int cstring_ends_with(CString *self, const char *suffix);
-
+bool cstring_starts_with(CString *self, const char *prefix);
+bool cstring_ends_with(CString *self, const char *suffix);
 
 // modify
 int cstring_append(CString *self, const char *suffix);
@@ -76,4 +75,5 @@ double cstring_to_double(CString *self);
 
 int cstring_reverse(CString *self);
 CString cstring_repeat(CString *self, size_t times);
+
 #endif
