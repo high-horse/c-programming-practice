@@ -1,4 +1,5 @@
 #include "cstring.h"
+#include <cstddef>
 #include <stdlib.h>
 #include <string.h>
 
@@ -42,7 +43,12 @@ bool cstring_equals_ignore_case(const CString *s1, const CString *s2){
 }
 
 int cstring_find(const CString *self, const char *substr){
-    return strstr(self->str, substr) - self->str;
+    if(self == NULL || self->str == NULL || substr == NULL) return -1;
+    
+    char *found = strstr(self->str, substr) ;
+    if(!found) return -1;
+    
+    return found - self->str;
 }
 
 bool cstring_contains(const CString *self, const char *substr){

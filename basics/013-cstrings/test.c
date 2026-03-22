@@ -12,5 +12,6 @@ int main() {
     printf("compares => %d\n", cstring_compare(&first, &second));
     printf("equals => %d\n", cstring_equals(&first, &second));
     printf("equals ignore case => %d\n", cstring_equals_ignore_case(&first, &second));
+    printf("cstring_find => %s\n", cstring_find(&first, "hem"));
     printf("contains => %d \n", cstring_contains(&first, "Hello"));
 }
