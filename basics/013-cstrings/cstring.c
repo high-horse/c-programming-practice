@@ -91,3 +91,76 @@ bool cstring_append(CString *self, const char *suffix) {
     return true;
 }
 
+bool cstring_append_cstring(CString *self, const CString *append_cstring) {
+    size_t suffix_len = append_cstring->len;
+    size_t new_len = self->len + suffix_len;
+    
+    if(self->capacity < new_len +1) {
+        size_t new_capacity = (self->capacity == 0) ? 16 : self->capacity *2;
+        while (new_capacity < new_len + 1) {
+            new_capacity *= 2;
+        }
+        char *new_str = realloc(self->str, new_capacity); // +1 for null terminating the string.
+        if(!new_str){
+            perror("FAILED TO REALLOC THE STRING:");
+            return false;
+        }
+        self->str = new_str;
+        self->capacity = new_capacity;
+    }
+    
+    memcpy(self->str + self->len, append_cstring->str, suffix_len);
+    self->str[new_len] = '\0';
+    self->len = new_len;
+    return true;
+}
+
+
+bool cstring_append_char(CString *self, const char suffix_char) {
+    size_t new_len = self->len + 1;
+    
+    if(self->capacity < new_len +1) {
+        size_t new_capacity = (self->capacity == 0) ? 16 : self->capacity *2;
+        while (new_capacity < new_len + 1) {
+            new_capacity *= 2;
+        }
+        char *new_str = realloc(self->str, new_capacity); // +1 for null terminating the string.
+        if(!new_str){
+            perror("FAILED TO REALLOC THE STRING:");
+            return false;
+        }
+        self->str = new_str;
+        self->capacity = new_capacity;
+    }
+    
+    self->str[self->len] = suffix_char;
+    self->str[new_len] = '\0';
+    self->len = new_len;
+    return true;
+}
+
+
+bool cstring_prepend(CString *self, const char *prefix){
+    size_t prefix_len = strlen(prefix);
+    size_t new_len = self->len + prefix_len;
+    
+    if(self->capacity < new_len + 1) {
+        size_t new_capacity = (self->capacity == 0) ? 16 : self->capacity * 2;
+        while (new_capacity < new_len + 1) {
+            new_capacity *= 2;
+        }
+        char *new_str = realloc(self->str, new_capacity);
+        if(!new_str) {
+            perror("FAILED TO REALLOC THE STRING:");
+            return false;
+        }
+        self->str = new_str;
+        self->capacity = new_capacity;
+    }
+    
+    memmove(self->str + prefix_len, self->str, self->len);
+    memcpy(self->str, prefix, prefix_len);
+    self->str[new_len] = '\0';
+    self->len = new_len;
+    return true;
+}

@@ -22,7 +22,17 @@ int main() {
     //     perror("FAILED TO APPEND:");
     //     exit(EXIT_FAILURE);
     // }
-    cstring_append(&second, " world");
+    if(!cstring_append(&second, " world")){
+        perror("FAILED TO APPEND:");
+        exit(EXIT_FAILURE);
+    }
     printf("second %s\n", second.str);
+    cstring_append_char(&first, ' ');
+    cstring_append_cstring(&first, &second);
+    printf("first =>%s \n second =>%s\n", first.str, second.str);
+    
+    cstring_prepend(&first, "prepended ");
+    printf("first =>%s \n second =>%s\n", first.str, second.str);
+    
     return  EXIT_SUCCESS;
 }
