@@ -1,4 +1,5 @@
 #include "cstring.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -6,9 +7,10 @@
 CString new_cstring(const char *data) {
     size_t length = strlen(data);
     size_t unit_size = sizeof(data[0]);
-    char *str = calloc(length, unit_size);
-    memcpy(str, data, length * unit_size);
-    return (CString){str, length, length};
+    char *str = calloc(length + 1, sizeof(char));
+    memcpy(str, data, length);
+    str[length] = '\0';
+    return (CString){str, length, length+1};
 }
 
 
@@ -64,3 +66,28 @@ bool cstring_ends_with(CString *self, const char *suffix) {
     size_t suffix_len = strlen(suffix);
     return suffix_len <= self->len && strcmp(self->str + self->len - suffix_len, suffix) == 0;
 }
+
+bool cstring_append(CString *self, const char *suffix) {
+    size_t suffix_len = strlen(suffix);
+    size_t new_len = self->len + suffix_len;
+    
+    if(self->capacity < new_len +1) {
+        size_t new_capacity = (self->capacity == 0) ? 16 : self->capacity *2;
+        while (new_capacity < new_len + 1) {
+            new_capacity *= 2;
+        }
+        char *new_str = realloc(self->str, new_capacity); // +1 for null terminating the string.
+        if(!new_str){
+            perror("FAILED TO REALLOC THE STRING:");
+            return false;
+        }
+        self->str = new_str;
+        self->capacity = new_capacity;
+    }
+    
+    memcpy(self->str + self->len, suffix, suffix_len);
+    self->str[new_len] = '\0';
+    self->len = new_len;
+    return true;
+}
+

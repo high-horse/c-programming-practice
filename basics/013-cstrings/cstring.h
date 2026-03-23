@@ -38,9 +38,12 @@ bool cstring_starts_with(CString *self, const char *prefix);
 bool cstring_ends_with(CString *self, const char *suffix);
 
 // modify
-int cstring_append(CString *self, const char *suffix);
+bool cstring_append(CString *self, const char *suffix);
+int cstring_append_cstring(CString *self, CString *append_cstring);
 int cstring_append_char(CString *self, const char suffix_char);
+
 int cstring_prepend(CString *self, const char *prefix);
+int cstring_prepend_cstring(CString *self, CString *prepend_cstring);
 int cstring_prepend_char(CString *self, const char item, char prefix_char);
 
 int cstring_insert_char(CString *self, size_t pos, char new_char);

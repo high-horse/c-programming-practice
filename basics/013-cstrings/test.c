@@ -18,4 +18,11 @@ int main() {
     printf("cstring_starts_with => %d\n", cstring_starts_with(&first, "H"));
     printf("cstring_ends_with => %d\n", cstring_ends_with(&first, "t"));
     
+    // if(!){
+    //     perror("FAILED TO APPEND:");
+    //     exit(EXIT_FAILURE);
+    // }
+    cstring_append(&second, " world");
+    printf("second %s\n", second.str);
+    return  EXIT_SUCCESS;
 }
