@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -5,9 +6,9 @@
 
 #include "raylib.h"
 
-#define W_WIDTH 800
+#define W_WIDTH 970
 #define W_HEIGHT 400
-#define FPS 20
+#define FPS 10
 
 #define THICKNESS 20
 #define LENGTH 60
@@ -24,13 +25,15 @@ int numbers[10][7] = {
   {false, false, true, true, false, false, false}, // 1
   {false, true, true, false, true, true, true}, // 2
   {false, true, true, true, true, false, true}, // 3
-  {true, false, true, true, false, false, false}, // 4
+  {true, false, true, true, false, false, true}, // 4
   {true, true, false, true, true, false, true}, // 5
   {true, true, false, true, true, true, true}, // 6
-  {false, true, true, false, false, false, false}, // 7
+  {false, true, true, true, false, false, false}, // 7
   {true, true, true, true, true, true, true}, // 8
   {true, true, true, true, true, false, true}, // 9
 };
+
+Vector2 start_pos = {LENGTH+ OFFSET, W_HEIGHT / 2};
 
 void paint_triangle_strip(Vector2 center, bool vertical, Color color) {
     Vector2 a, b ,c ,d, e, f;
@@ -57,36 +60,9 @@ void paint_triangle_strip(Vector2 center, bool vertical, Color color) {
 }
 
 
-void draw_digit_(int digit) {
-    Vector2 center = {W_WIDTH / 2, W_HEIGHT / 2};
+
+void draw_digit(int digit, Vector2 center) {
     int *color_flags = numbers[digit];
-    float h = LENGTH;
-    float off = OFFSET;
-
-    // Horizontal segments
-    Vector2 top    = {center.x, center.y - h - off};
-    Vector2 middle = {center.x, center.y};
-    Vector2 bottom = {center.x, center.y + h + off};
-
-    // Vertical segments (perfectly aligned grid)
-    Vector2 top_left     = {center.x - h/2 - off, center.y - h/2};
-    Vector2 top_right    = {center.x + h/2 + off, center.y - h/2};
-    Vector2 bottom_left  = {center.x - h/2 - off, center.y + h/2};
-    Vector2 bottom_right = {center.x + h/2 + off, center.y + h/2};
-
-    paint_triangle_strip(top_left, true, color_flags[0] ? ON_COLOR : OFF_COLOR);
-    paint_triangle_strip(top, false, color_flags[1] ? ON_COLOR : OFF_COLOR);
-    paint_triangle_strip(top_right, true, color_flags[2] ? ON_COLOR : OFF_COLOR);
-    paint_triangle_strip(bottom_right, true, color_flags[3] ? ON_COLOR : OFF_COLOR);
-    paint_triangle_strip(bottom, false, color_flags[4] ? ON_COLOR : OFF_COLOR);
-    paint_triangle_strip(bottom_left, true, color_flags[5] ? ON_COLOR : OFF_COLOR);
-    paint_triangle_strip(middle, false, color_flags[6] ? ON_COLOR : OFF_COLOR);
-}
-
-void draw_digit(int digit) {
-    int *color_flags = numbers[digit];
-    
-    Vector2 center = (Vector2){W_WIDTH / 2, W_HEIGHT / 2};
     
     Vector2 top = {center.x , center.y - LENGTH - OFFSET};
     Vector2 middle = (Vector2){center.x , center.y};
@@ -108,16 +84,49 @@ void draw_digit(int digit) {
     
 }
 
+void draw_colon(Vector2 center) {
+    double_t t = GetTime();
+    
+    bool visible = ((int)(t * 4) % 2) == 0;
+    
+    Vector2 top = (Vector2){center.x, center.y - LENGTH / 2 - OFFSET / 2};
+    Vector2 bottom = (Vector2){center.x, center.y + LENGTH / 2 + OFFSET / 2};
+    DrawCircle(top.x, top.y, THICKNESS * 2/3, visible ? ON_COLOR : OFF_COLOR);
+    DrawCircle(bottom.x, bottom.y, THICKNESS * 2/3, visible ? ON_COLOR : OFF_COLOR);
+}
+
+void draw_clock(int hour, int minute, int second) {
+    int x = start_pos.x;
+    draw_digit(hour / 10, start_pos);
+    // start_pos.x += LENGTH + OFFSET;
+    x += LENGTH + OFFSET * 2;
+    draw_digit(hour % 10, (Vector2) {x, start_pos.y});
+    x += LENGTH + OFFSET;
+    draw_colon((Vector2) {x , start_pos.y});
+    x += LENGTH + OFFSET;
+    draw_digit(minute / 10, (Vector2){x, start_pos.y});
+     x += LENGTH + OFFSET * 2;
+    draw_digit(minute % 10,  (Vector2){x, start_pos.y});
+    x += LENGTH + OFFSET;
+    draw_colon((Vector2) {x , start_pos.y});
+    x += LENGTH + OFFSET;
+    draw_digit(second / 10, (Vector2) {x , start_pos.y});
+    x += LENGTH + OFFSET * 2;
+    draw_digit(second % 10, (Vector2) {x , start_pos.y});
+}
+
 int main() {
-    time_t current =  time(NULL);
-    struct tm *current_localtime = localtime(&current);
-    printf("time %d:%d:%d\n", current_localtime->tm_hour, current_localtime->tm_min, current_localtime->tm_sec);
-    InitWindow(W_WIDTH, W_HEIGHT, "raylib example - basic window");
+    time_t current;
+    struct tm *current_localtime;
+    
+    InitWindow(W_WIDTH, W_HEIGHT, "DIGITAL CLOCK");
     SetTargetFPS(FPS);
     while (!WindowShouldClose()) {
+        current = time(NULL);
+        current_localtime = localtime(&current);
         BeginDrawing();
         ClearBackground(BLACK);
-        draw_digit(2);
+        draw_clock(current_localtime->tm_hour, current_localtime->tm_min, current_localtime->tm_sec);
         EndDrawing();
     }
     
