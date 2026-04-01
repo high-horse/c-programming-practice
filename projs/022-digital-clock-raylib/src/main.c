@@ -1,5 +1,4 @@
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
@@ -87,7 +86,7 @@ void draw_digit(int digit, Vector2 center) {
 void draw_colon(Vector2 center) {
     double_t t = GetTime();
     
-    bool visible = ((int)(t * 4) % 2) == 0;
+    bool visible = ((int)(t * 2) % 2) == 0;
     
     Vector2 top = (Vector2){center.x, center.y - LENGTH / 2 - OFFSET / 2};
     Vector2 bottom = (Vector2){center.x, center.y + LENGTH / 2 + OFFSET / 2};
