@@ -20,21 +20,10 @@
 #define OFF_COLOR DARKESTGRAY
 
 // top_left, top, top_right, bottom_right, bottom, bottom_left, middle
-const int numbers_lookup_table[10][7] = {
-  {true, true, true, true, true, true, false}, // 0
-  {false, false, true, true, false, false, false}, // 1
-  {false, true, true, false, true, true, true}, // 2
-  {false, true, true, true, true, false, true}, // 3
-  {true, false, true, true, false, false, true}, // 4
-  {true, true, false, true, true, false, true}, // 5
-  {true, true, false, true, true, true, true}, // 6
-  {false, true, true, true, false, false, false}, // 7
-  {true, true, true, true, true, true, true}, // 8
-  {true, true, true, true, true, false, true}, // 9
-};
+extern int numbers_lookup_table[10][7] ;
 
 
-const Vector2 start_pos = {LENGTH+ OFFSET, W_HEIGHT / 2};
+extern const Vector2 start_pos ;
 
 void paint_triangle_strip(Vector2 center, bool vertical, Color color);
 void draw_colon(Vector2 center) ;
