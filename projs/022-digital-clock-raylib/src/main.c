@@ -118,6 +118,7 @@ int main() {
     time_t current;
     struct tm *current_localtime;
     
+    SetWindowState(FLAG_WINDOW_UNDECORATED);
     InitWindow(W_WIDTH, W_HEIGHT, "DIGITAL CLOCK");
     SetTargetFPS(FPS);
     while (!WindowShouldClose()) {
