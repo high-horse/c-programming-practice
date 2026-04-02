@@ -12,8 +12,8 @@
 
 #define THICKNESS 20
 #define LENGTH 60
-#define TIP 15
-#define OFFSET 35
+#define TIP 10
+#define OFFSET 25
 
 #define DARKESTGRAY CLITERAL(Color){ 20, 20, 20, 255 }  // Dark gray
 #define ON_COLOR GREEN

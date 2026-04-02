@@ -1,6 +1,12 @@
+// #include <unistd.h>
+// #include <sys/types.h>
+// #include <stdio.h>
 #include "libs/draw.h"
 
 int main() {
+    // pid_t current_pid = getpid();
+    // printf("===========\n Curreent process id %d\n============\n", (int) current_pid);
+    
     time_t current;
     struct tm *current_localtime;
     

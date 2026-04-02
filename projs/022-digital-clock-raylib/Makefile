@@ -1,5 +1,5 @@
 do:
-	gcc -std=c23 -Wall -Wextra  src/*.c src/libs/* -o bin/a.out -lraylib && ./bin/a.out
+	gcc -std=c2x -Wall -Wextra  src/*.c src/libs/* -o bin/clock.out -lraylib && ./bin/clock.out
 
 build-static-linux:
 	gcc -std=c23 -Wall -Wextra -Werror \
