@@ -80,18 +80,18 @@ void draw_clock(int hour, int minute, int second) {
     int x = start_pos.x;
     draw_digit(hour / 10, start_pos);
     // start_pos.x += LENGTH + OFFSET;
-    x += LENGTH + OFFSET * 2;
+    x += LENGTH + SPACE_BETWEEN_DIGITS * 2;
     draw_digit(hour % 10, (Vector2) {x, start_pos.y});
-    x += LENGTH + OFFSET;
+    x += LENGTH + SPACE_BETWEEN_DIGITS;
     draw_colon((Vector2) {x , start_pos.y});
-    x += LENGTH + OFFSET;
+    x += LENGTH + SPACE_BETWEEN_DIGITS;
     draw_digit(minute / 10, (Vector2){x, start_pos.y});
-     x += LENGTH + OFFSET * 2;
+     x += LENGTH + SPACE_BETWEEN_DIGITS * 2;
     draw_digit(minute % 10,  (Vector2){x, start_pos.y});
-    x += LENGTH + OFFSET;
+    x += LENGTH + SPACE_BETWEEN_DIGITS;
     draw_colon((Vector2) {x , start_pos.y});
-    x += LENGTH + OFFSET;
+    x += LENGTH + SPACE_BETWEEN_DIGITS;
     draw_digit(second / 10, (Vector2) {x , start_pos.y});
-    x += LENGTH + OFFSET * 2;
+    x += LENGTH + SPACE_BETWEEN_DIGITS * 2;
     draw_digit(second % 10, (Vector2) {x , start_pos.y});
 }

@@ -6,7 +6,7 @@
 #include <time.h>
 #include "raylib.h"
 
-#define W_WIDTH 970
+#define W_WIDTH 965
 #define W_HEIGHT 400
 #define FPS 10
 
@@ -14,6 +14,8 @@
 #define LENGTH 60
 #define TIP 10
 #define OFFSET 25
+#define SPACE_BETWEEN_DIGITS 35
+
 
 #define DARKESTGRAY CLITERAL(Color){ 20, 20, 20, 255 }  // Dark gray
 #define ON_COLOR GREEN

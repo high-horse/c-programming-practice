@@ -1,18 +1,11 @@
-// #include <unistd.h>
-// #include <sys/types.h>
-// #include <stdio.h>
 #include "libs/draw.h"
 
-int main() {
-    // pid_t current_pid = getpid();
-    // printf("===========\n Curreent process id %d\n============\n", (int) current_pid);
-    
+int main() {    
     time_t current;
     struct tm *current_localtime;
     
-    // SetWindowState(FLAG_WINDOW_UNDECORATED);
     InitWindow(W_WIDTH, W_HEIGHT, "DIGITAL CLOCK");
-        SetWindowState(FLAG_WINDOW_UNDECORATED);     
+    SetWindowState(FLAG_WINDOW_UNDECORATED);     
     SetTargetFPS(FPS);
     
     while (!WindowShouldClose()) {
