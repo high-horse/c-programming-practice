@@ -9,6 +9,6 @@ build-static-linux:
 	-lm -ldl -lpthread -lrt -lX11 -lGL
 	
 build-linux:
-	gcc -std=c23 -Wall -Wextra -Werror \
+	gcc -std=c2x -Wall -Wextra -Werror \
 	-o bin/clock src/main.c src/libs/* \
 	-lraylib -lm -ldl -lpthread -lrt -lX11 -lGL
