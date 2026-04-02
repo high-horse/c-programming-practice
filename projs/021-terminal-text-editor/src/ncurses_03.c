@@ -16,7 +16,7 @@ int main() {
     while(key != 'q') {
         clear();
         move(0, 0);
-        printw("Presss left or right arrow  - exit by pressing : q");
+        printw("\u20ac\n \xe2\x82\xac\n Presss left or right arrow  - exit by pressing : q");
         move(y, x);
         
         printw("O");
