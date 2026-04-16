@@ -17,7 +17,7 @@
 #define SPACE_BETWEEN_DIGITS 30
 
 
-#define DARKESTGRAY CLITERAL(Color){ 20, 20, 20, 255 }  // Dark gray
+#define DARKESTGRAY CLITERAL(Color){ 40, 40, 40, 255 }  // Dark gray
 #define ON_COLOR GREEN
 #define OFF_COLOR DARKESTGRAY
 
