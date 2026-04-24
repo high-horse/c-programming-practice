@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra 
 LIBS = -lsqlite3
 OUT = bin/todo.out
-FILES = src/main.c
+FILES = src/main.c src/libs/*
 
 all: build run
 
