@@ -1,3 +1,4 @@
+#include <time.h>
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -126,14 +127,17 @@ DB_STATUS view_handler(sqlite3 *db)
 
   printf("\n" CYAN "All Todos:" RESET "\n");
   printf("--------------------------------------------------------------------------------\n");
-  printf(CYAN "%-10s %-50s %-50s\n" RESET, "ID", "Title", "Description");
+  printf(CYAN "%-10s %-10s %-50s %-50s\n" RESET, "ID", "Done", "Title", "Description");
 
   while ((rc = sqlite3_step(res)) == SQLITE_ROW)
   {
     const char *id = sqlite3_column_text(res, 0);
+    const char *status_str = sqlite3_column_text(res, 3);
+    int status = status_str ? atoi(status_str) : 0;
+    char *status_label = status == 1 ? "[*]" : "[ ]";
     const char *title = sqlite3_column_text(res, 1);
     const char *desc = sqlite3_column_text(res, 2);
-    printf("%-10s %-50s %-50s\n", id, title, desc);
+    printf("%-10s %-10s %-50s %-50s\n", id, status_label, title, desc);
   }
   printf("--------------------------------------------------------------------------------\n");
   sqlite3_finalize(res);
@@ -145,6 +149,78 @@ error_cleanup:
   return Err;
 }
 
+DB_STATUS delete_haneler(sqlite3 *db) {
+    char id[10];
+    printf("" CYAN "\tTodo ID to delete:" RESET " ");
+    scanf("%s", id);
+    int del_id = atoi(id);
+    const char *query = "DELETE FROM todos where id = ?;";
+    sqlite3_stmt *stmt;
+    
+    if(sqlite3_prepare_v2(db, query, -1, &stmt, NULL) != SQLITE_OK) {
+        fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+        return Err;
+    }
+    
+    sqlite3_bind_int(stmt, 1, del_id);
+
+    if(sqlite3_step(stmt) != SQLITE_DONE) {
+        fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
+        goto error_cleanup;
+    }
+    
+    goto  ok_cleanup;
+
+    ok_cleanup:
+        sqlite3_finalize(stmt);
+        return Ok;
+        
+    error_cleanup:
+        sqlite3_finalize(stmt);
+        return Err;
+}
+
+DB_STATUS update_handler(sqlite3 *db)
+{
+    char id[10];
+    printf("[" CYAN "0" RESET "] Incomplete  [" CYAN "1" RESET "] Mark Completed  \n");
+    printf("" CYAN "\tTodo ID to update:" RESET " ");
+    scanf("%s", id);
+    int update_id = atoi(id);
+    printf("" CYAN "\tTodo status to update:" RESET " ");
+    scanf("%s", id);
+    int status = atoi(id);
+    if(status != 0 && status != 1) {
+        fprintf(stderr, "Invalid status: %d\n", status);
+        return Ok;
+    }
+
+    printf("todo to update |%d|\n", update_id);
+    const char *sql = "UPDATE todos SET status = ? WHERE id = ?;";
+    sqlite3_stmt *stmt;
+    
+    if(sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+        goto err_cleanup;
+    }
+    
+    sqlite3_bind_int(stmt, 1, status);
+    sqlite3_bind_int(stmt, 2, update_id);
+    
+    if(sqlite3_step(stmt) != SQLITE_DONE) {
+        fprintf(stderr, "Failed to update todo: %s\n", sqlite3_errmsg(db));
+        goto err_cleanup;
+    }
+    
+    ok_cleanup:
+        sqlite3_finalize(stmt);
+        return Ok;
+    
+    err_cleanup:
+        sqlite3_finalize(stmt);
+        return Err;
+}
+
 void create_cli(sqlite3 *db)
 {
 
@@ -154,6 +230,7 @@ void create_cli(sqlite3 *db)
   while (running)
   {
     printf("[" CYAN "i" RESET "]nsert  [" CYAN "v" RESET "]iew  [" CYAN "u" RESET "]pdate  [" CYAN "d" RESET "]elete  [" CYAN "q" RESET "]uit\n");
+    view_handler(db);
     scanf(" %c", &action);
     int c;
     while ((c = getchar()) != '\n' && c != EOF)
@@ -163,10 +240,7 @@ void create_cli(sqlite3 *db)
     {
     case 'i':
     case 'I':
-      if (insert_handler(db) != Ok)
-      {
-        running = false;
-      }
+      if (insert_handler(db) != Ok) running = false;
       break;
 
     case 'v':
@@ -176,12 +250,12 @@ void create_cli(sqlite3 *db)
 
     case 'u':
     case 'U':
-      printf("updating ...\n");
+        update_handler(db);
       break;
 
     case 'd':
     case 'D':
-      printf("deleting ...\n");
+        if(delete_haneler(db) != Ok) running = false;
       break;
 
     case 'q':
