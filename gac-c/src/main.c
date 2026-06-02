@@ -104,7 +104,6 @@ char *get_branch() {
 
     if(fgets(branch, sizeof(branch), fp)) {
         branch[strcspn(branch, "\n")] = '\0';
-        printf("current branch: '%s'\n", branch);
         pclose(fp);
         return branch;
     }
