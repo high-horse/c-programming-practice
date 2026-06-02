@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
         }
         response = commit(argv[1]);
         if(!response) {
-            perror("FAILED COMMIT");
+            fprintf(stderr, "FAILED COMMIT\n");
             goto failure;
         }
         goto success;
@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
         }
         response = commit(argv[1]);
         if(!response) {
-            perror("FAILED COMMIT");
+            fprintf(stderr, "FAILED COMMIT\n");
             goto failure;
         }
         char *branch = strcasecmp(argv[2], "1") == 0 ? get_branch() : argv[2] ;
