@@ -39,7 +39,6 @@ int main(int argc, char *argv[]) {
     }
 
     if(argc > 2) {
-        goto success;
         bool response = add();
         if(!response) {
             perror("FAILED ADD");
