@@ -84,7 +84,7 @@ bool commit(const char *commit_message){
 }
 
 bool push(const char *branch) {
-    printf("pushing to '\033[1m%s\033[0m'\n", branch);
+    printf("pushing to \033[1m`%s`\033[0m\n", branch);
     char *cmd;
     if(0 > asprintf(&cmd, PUSH_CMD " %s", branch)) {
         return false;
