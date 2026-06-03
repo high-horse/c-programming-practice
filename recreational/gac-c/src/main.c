@@ -95,21 +95,6 @@ bool push(const char *branch) {
     return res == 0;
 }
 
-char *get_branch_() {
-    char *branch = calloc(1, 1024);
-    FILE *fp = popen(BRANCH_CMD, "r");
-    if(fp == NULL) {
-        perror("FAILED TO OPEN FP FOR BRANCH");
-        return NULL;
-    }
-
-    if(fgets(branch, sizeof(branch), fp)) {
-        branch[strcspn(branch, "\n")] = '\0';
-        pclose(fp);
-        return branch;
-    }
-    return NULL;
-}
 
 char *get_branch() {
     char *branch = calloc(1, 1024);
