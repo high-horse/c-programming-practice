@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
         
         goto failure;
     }
+
     
     if(argc == 2) {
         bool response = add();
