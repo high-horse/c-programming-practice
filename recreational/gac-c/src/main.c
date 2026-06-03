@@ -120,3 +120,4 @@ char *get_branch() {
 
     return branch;
 }
+
